@@ -1,11 +1,19 @@
 import { defineConfig } from 'drizzle-kit';
-if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not set');
+import fs from 'fs';
+import path from 'path';
+
+if (!process.env.DATABASE_ROOT_URL) throw new Error('DATABASE_ROOT_URL is not set');
 
 export default defineConfig({
-  schema: './src/lib/server/db/schema.ts',
-
+  schema: './src/lib/server/db/schema/*.ts',
   dbCredentials: {
-    url: process.env.DATABASE_URL
+    url: process.env.DATABASE_ROOT_URL,
+    ssl: {
+      rejectUnauthorized: true,
+      ca: fs.readFileSync(path.resolve(__dirname, 'certs', 'root.crt')).toString(),
+      key: fs.readFileSync(path.resolve(__dirname, 'certs', 'client.key')).toString(),
+      cert: fs.readFileSync(path.resolve(__dirname, 'certs', 'client.crt')).toString(),
+    }
   },
 
   verbose: true,
