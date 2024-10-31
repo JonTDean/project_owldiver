@@ -1,5 +1,6 @@
 import { getDb } from '$lib/server/db';
-import { users } from '$lib/server/schema';
+import { users } from '$lib/server/db/schema';
+
 
 export async function load() {
   const db = getDb(true); // Use admin connection
