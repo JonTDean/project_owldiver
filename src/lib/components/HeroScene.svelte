@@ -45,7 +45,7 @@
     const rotation = writable({ earth: 0, sun: 0 })
     const EARTH_ROTATION_SPEED = 0.0005
     const SUN_ORBIT_SPEED = 0.0002
-    const SUN_DISTANCE = 100
+    const SUN_DISTANCE = 300
 
     onMount(() => {
         const animate = () => {
@@ -64,12 +64,51 @@
         z: Math.sin($rotation.sun) * SUN_DISTANCE
     }
 
-    // Sun material without emissive property
+    // Sun material with opacity
     const sunMaterial = new THREE.MeshBasicMaterial({
         color: '#fffceb',
         transparent: true,
+        opacity: 0,
         toneMapped: false
     })
+
+    // Add fade state for sun
+    const sunOpacity = writable(0)
+
+    // Update sun opacity based on position
+    $: {
+        const sunAngle = Math.atan2(sunPosition.z, sunPosition.x)
+        const isSunVisible = sunAngle > -Math.PI/2 && sunAngle < Math.PI/2
+        
+        // Fade sun in/out
+        const targetOpacity = isSunVisible ? 1 : 0
+        const duration = 1000 // ms
+        
+        if ($sunOpacity !== targetOpacity) {
+            const start = $sunOpacity
+            const startTime = Date.now()
+            
+            const animate = () => {
+                const elapsed = Date.now() - startTime
+                const progress = Math.min(elapsed / duration, 1)
+                
+                // Smooth transition using easing
+                const eased = progress < 0.5
+                    ? 2 * progress * progress
+                    : 1 - Math.pow(-2 * progress + 2, 2) / 2
+                    
+                sunOpacity.set(start + (targetOpacity - start) * eased)
+                sunMaterial.opacity = $sunOpacity
+                
+                if (progress < 1) requestAnimationFrame(animate)
+            }
+            
+            animate()
+        }
+    }
+
+    // Update sun light intensity based on visibility
+    $: sunLightIntensity = $sunOpacity * 2
 
     // Earth material with custom shader for day/night cycle
     const earthMaterial = new THREE.ShaderMaterial({
@@ -132,7 +171,7 @@
 <Stars {...starsConfig} />
 
 <T.PerspectiveCamera 
-    position={[0, 40, 80]} 
+    position={[0, 40, 150]} 
     fov={45}
     near={0.1}
     far={1000}
@@ -146,7 +185,7 @@
         enableRotate={false}
         enablePan={false}
         enableZoom={false}
-        target.y={-15}
+        target.y={-30}
     />
 </T.PerspectiveCamera>
 
@@ -154,22 +193,22 @@
 <T.Group position={[sunPosition.x, sunPosition.y, sunPosition.z]}>
     <!-- Visible sun sphere -->
     <T.Mesh material={sunMaterial}>
-        <T.SphereGeometry args={[5, 32, 32]} />
+        <T.SphereGeometry args={[15, 32, 32]} />
     </T.Mesh>
     
     <!-- Sun light with shadows -->
     <T.DirectionalLight 
-        intensity={2}
+        intensity={sunLightIntensity}
         color="#fffceb"
         castShadow
         shadow.mapSize.width={2048}
         shadow.mapSize.height={2048}
         shadow.camera.near={1}
-        shadow.camera.far={500}
-        shadow.camera.left={-100}
-        shadow.camera.right={100}
-        shadow.camera.top={100}
-        shadow.camera.bottom={-100}
+        shadow.camera.far={1000}
+        shadow.camera.left={-200}
+        shadow.camera.right={200}
+        shadow.camera.top={200}
+        shadow.camera.bottom={-200}
         shadow.bias={-0.001}
     />
 </T.Group>

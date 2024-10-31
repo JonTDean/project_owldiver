@@ -13,10 +13,9 @@ export const users = pgTable("users", {
 });
 
 export const sessions = pgTable("sessions", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  user_id: uuid("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  expires_at: timestamp("expires_at", { withTimezone: true }).notNull(),
-  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  id: text("id").primaryKey(),
+  userId: uuid("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
 export const player_profiles = pgTable("player_profiles", {
@@ -32,4 +31,11 @@ export const player_profiles = pgTable("player_profiles", {
   last_active: timestamp("last_active", { withTimezone: true }).defaultNow(),
   bio: text("bio"),
   achievements: text("achievements").array(),
+});
+
+// Add this new table for Lucia auth
+export const keys = pgTable("auth_keys", {
+  id: text("id").primaryKey(),
+  user_id: uuid("user_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  hashed_password: text("hashed_password")
 });
