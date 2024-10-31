@@ -58,10 +58,12 @@
 		"drizzle-orm": "^0.33.0",
 		"lucide-svelte": "^0.454.0",
 		"postgres": "^3.4.4",
+		"postprocessing": "^6.36.3",
 		"shadcn-svelte": "^0.14.0",
 		"svelte-french-toast": "^1.2.0",
 		"svelte-headless-table": "^0.18.3",
 		"svelte-legos": "^0.2.5",
-		"three": "^0.169.0"
+		"three": "^0.169.0",
+		"three-good-godrays": "^0.7.1"
 	}
 }
