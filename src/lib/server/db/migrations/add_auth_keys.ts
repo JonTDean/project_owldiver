@@ -1,14 +1,18 @@
-import { pgTable, text, uuid } from "drizzle-orm/pg-core";
+import { type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { sql } from "drizzle-orm";
 
-export async function up(db: any) {
-  await db.schema.createTable("auth_keys", (table) => {
-    table.text("id").primaryKey();
-    table.uuid("user_id").references("users.id").onDelete("cascade").notNull();
-    table.text("hashed_password");
-  });
+export async function up(db: PostgresJsDatabase) {
+  await db.execute(sql`
+    CREATE TABLE IF NOT EXISTS auth_keys (
+      id TEXT PRIMARY KEY,
+      user_id UUID REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+      hashed_password TEXT
+    )
+  `);
 }
 
-export async function down(db: any) {
-  await db.schema.dropTable("auth_keys");
+export async function down(db: PostgresJsDatabase) {
+  await db.execute(sql`
+    DROP TABLE IF EXISTS auth_keys
+  `);
 } 

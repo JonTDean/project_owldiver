@@ -19,7 +19,58 @@ CREATE TABLE IF NOT EXISTS "builds" (
 	"updated_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "player_profiles" (
+CREATE TABLE IF NOT EXISTS "users" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"username" varchar(255) NOT NULL,
+	"email" varchar(255) NOT NULL,
+	"password_hash" varchar(255) NOT NULL,
+	"role" varchar(50) DEFAULT 'user' NOT NULL,
+	"is_active" boolean DEFAULT true NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "users_email_unique" UNIQUE("email")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "sessions" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "oauth_accounts" (
+	"provider_id" text NOT NULL,
+	"provider_user_id" text NOT NULL,
+	"user_id" uuid NOT NULL,
+	"access_token" text NOT NULL,
+	"refresh_token" text,
+	"expires_at" timestamp with time zone,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "mission_participants" (
+	"mission_id" uuid,
+	"user_id" uuid,
+	"profile_id" uuid,
+	"role" varchar(50) DEFAULT 'member',
+	"joined_at" timestamp with time zone DEFAULT now(),
+	CONSTRAINT "mission_participants_mission_id_user_id_pk" PRIMARY KEY("mission_id","user_id")
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "missions" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"title" varchar(255) NOT NULL,
+	"description" text,
+	"created_by" uuid,
+	"status" varchar(50) DEFAULT 'active',
+	"difficulty" varchar(50),
+	"max_participants" integer,
+	"current_participants" integer DEFAULT 0,
+	"start_time" timestamp with time zone,
+	"end_time" timestamp with time zone,
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now()
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "profiles" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
 	"discord_id" varchar(255),
@@ -32,49 +83,6 @@ CREATE TABLE IF NOT EXISTS "player_profiles" (
 	"last_active" timestamp with time zone DEFAULT now(),
 	"bio" text,
 	"achievements" text[]
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "sessions" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" uuid NOT NULL,
-	"expires_at" timestamp with time zone NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now()
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "users" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"username" varchar(255) NOT NULL,
-	"email" varchar(255) NOT NULL,
-	"password_hash" varchar(255) NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
-	"last_login" timestamp with time zone,
-	"is_active" boolean DEFAULT true,
-	"role" varchar(50) DEFAULT 'user',
-	CONSTRAINT "users_username_unique" UNIQUE("username"),
-	CONSTRAINT "users_email_unique" UNIQUE("email")
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "mission_participants" (
-	"mission_id" uuid,
-	"user_id" uuid,
-	"role" varchar(50) DEFAULT 'member',
-	"joined_at" timestamp with time zone DEFAULT now(),
-	CONSTRAINT "mission_participants_mission_id_user_id_pk" PRIMARY KEY("mission_id","user_id")
-);
---> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "missions" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"title" varchar(255) NOT NULL,
-	"description" text,
-	"status" varchar(50) DEFAULT 'active',
-	"difficulty" varchar(50),
-	"max_participants" integer,
-	"current_participants" integer DEFAULT 0,
-	"start_time" timestamp with time zone,
-	"end_time" timestamp with time zone,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 DO $$ BEGIN
@@ -96,13 +104,13 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "player_profiles" ADD CONSTRAINT "player_profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "oauth_accounts" ADD CONSTRAINT "oauth_accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -115,6 +123,24 @@ END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "mission_participants" ADD CONSTRAINT "mission_participants_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "mission_participants" ADD CONSTRAINT "mission_participants_profile_id_profiles_id_fk" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "missions" ADD CONSTRAINT "missions_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "profiles" ADD CONSTRAINT "profiles_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

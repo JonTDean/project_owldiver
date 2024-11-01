@@ -1,6 +1,19 @@
-import { type Handle } from '@sveltejs/kit';
-import { sequence } from '@sveltejs/kit/hooks';
-import { handleAuth } from '$lib/server/auth';
+import type { Handle } from '@sveltejs/kit';
+import { validateSessionToken } from '$lib/server/auth/session';
 
-// Create a sequence of handlers
-export const handle: Handle = sequence(handleAuth);
+export const handle = (async ({ event, resolve }) => {
+  const token = event.cookies.get('session_token');
+  
+  if (token) {
+    const session = await validateSessionToken(token);
+    if (session) {
+      event.locals.user = session.user;
+    } else {
+      event.cookies.delete('session_token', { path: '/' });
+    }
+  }
+
+  return resolve(event, {
+    transformPageChunk: ({ html }) => html
+  });
+}) satisfies Handle;

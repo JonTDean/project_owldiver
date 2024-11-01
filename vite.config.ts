@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => {
     define: {
       'process.env.DATABASE_CLIENT_URL': JSON.stringify(env.DATABASE_CLIENT_URL),
       'process.env.DATABASE_ROOT_URL': JSON.stringify(env.DATABASE_ROOT_URL)
+    },
+    ssr: {
+      noExternal: ['lucia', '@lucia-auth/oauth']
     }
   };
 });

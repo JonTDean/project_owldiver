@@ -4,6 +4,7 @@
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import toast from 'svelte-french-toast';
+  import { DiscordIcon, GoogleIcon } from '$lib/components/icons';
 
   let email = '';
   let password = '';
@@ -73,6 +74,34 @@
           <span class="relative z-10">Login</span>
         </Button>
       </form>
+
+      <div class="space-y-4 mt-6">
+        <div class="relative">
+          <div class="absolute inset-0 flex items-center">
+            <span class="w-full border-t border-white/20"></span>
+          </div>
+          <div class="relative flex justify-center text-xs uppercase">
+            <span class="bg-black px-2 text-white/60">Or continue with</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <a 
+            href="/auth/discord/login"
+            class="flex items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold hover:bg-white/10 transition"
+          >
+            {@html `<div class="h-5 w-5">${DiscordIcon}</div>`}
+            Discord
+          </a>
+          <a 
+            href="/auth/google/login"
+            class="flex items-center justify-center gap-2 rounded-lg border border-white/20 px-4 py-2 text-sm font-semibold hover:bg-white/10 transition"
+          >
+            {@html `<div class="h-5 w-5">${GoogleIcon}</div>`}
+            Google
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

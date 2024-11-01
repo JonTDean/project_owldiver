@@ -6,6 +6,7 @@ if (!process.env.DATABASE_ROOT_URL) throw new Error('DATABASE_ROOT_URL is not se
 
 export default defineConfig({
   schema: './src/lib/server/db/schema/*.ts',
+  out: './src/lib/server/db/migrations', 
   dbCredentials: {
     url: process.env.DATABASE_ROOT_URL,
     ssl: {

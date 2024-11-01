@@ -1,29 +1,32 @@
 import { pgTable, uuid, varchar, text, integer, timestamp, primaryKey } from "drizzle-orm/pg-core";
 import { users } from './users';
+import { profiles } from './profiles';
 
 export const missions = pgTable("missions", {
   id: uuid("id").primaryKey().defaultRandom(),
   title: varchar("title", { length: 255 }).notNull(),
   description: text("description"),
+  createdBy: uuid("created_by").references(() => users.id),
   status: varchar("status", { length: 50 }).default("active"),
   difficulty: varchar("difficulty", { length: 50 }),
-  max_participants: integer("max_participants"),
-  current_participants: integer("current_participants").default(0),
-  start_time: timestamp("start_time", { withTimezone: true }),
-  end_time: timestamp("end_time", { withTimezone: true }),
-  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updated_at: timestamp("updated_at", { withTimezone: true }).defaultNow(),
+  maxParticipants: integer("max_participants"),
+  currentParticipants: integer("current_participants").default(0),
+  startTime: timestamp("start_time", { withTimezone: true }),
+  endTime: timestamp("end_time", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });
 
-export const mission_participants = pgTable(
+export const missionParticipants = pgTable(
   "mission_participants",
   {
-    mission_id: uuid("mission_id").references(() => missions.id, { onDelete: 'cascade' }),
-    user_id: uuid("user_id").references(() => users.id, { onDelete: 'cascade' }),
+    missionId: uuid("mission_id").references(() => missions.id, { onDelete: 'cascade' }),
+    userId: uuid("user_id").references(() => users.id, { onDelete: 'cascade' }),
+    profileId: uuid("profile_id").references(() => profiles.id, { onDelete: 'cascade' }),
     role: varchar("role", { length: 50 }).default("member"),
-    joined_at: timestamp("joined_at", { withTimezone: true }).defaultNow(),
+    joinedAt: timestamp("joined_at", { withTimezone: true }).defaultNow(),
   },
   (table) => ({
-    pk: primaryKey({ columns: [table.mission_id, table.user_id] })
+    pk: primaryKey({ columns: [table.missionId, table.userId] })
   })
 );

@@ -1,6 +1,6 @@
 {
-  "id": "6f60f8e2-952f-4cc2-a688-94b9d8a7404a",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "bec807a2-5ce5-4c3f-aa21-3e206812eb3f",
+  "prevId": "c2a07d04-683e-436a-b91e-4310cd08078d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -162,8 +162,72 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.player_profiles": {
-      "name": "player_profiles",
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "username": {
+          "name": "username",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
+        },
+        "is_active": {
+          "name": "is_active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_email_unique": {
+          "name": "users_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      }
+    },
+    "public.profiles": {
+      "name": "profiles",
       "schema": "",
       "columns": {
         "id": {
@@ -243,14 +307,15 @@
           "name": "achievements",
           "type": "text[]",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": []
         }
       },
       "indexes": {},
       "foreignKeys": {
-        "player_profiles_user_id_users_id_fk": {
-          "name": "player_profiles_user_id_users_id_fk",
-          "tableFrom": "player_profiles",
+        "profiles_user_id_users_id_fk": {
+          "name": "profiles_user_id_users_id_fk",
+          "tableFrom": "profiles",
           "tableTo": "users",
           "columnsFrom": [
             "user_id"
@@ -271,10 +336,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "user_id": {
           "name": "user_id",
@@ -287,13 +351,6 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
         }
       },
       "indexes": {},
@@ -315,89 +372,72 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "public.users": {
-      "name": "users",
+    "public.oauth_accounts": {
+      "name": "oauth_accounts",
       "schema": "",
       "columns": {
+        "provider_id": {
+          "name": "provider_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_user_id": {
+          "name": "provider_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "access_token": {
+          "name": "access_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "refresh_token": {
+          "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expires_at": {
+          "name": "expires_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
         "id": {
           "name": "id",
           "type": "uuid",
           "primaryKey": true,
           "notNull": true,
           "default": "gen_random_uuid()"
-        },
-        "username": {
-          "name": "username",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "email": {
-          "name": "email",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "password_hash": {
-          "name": "password_hash",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "last_login": {
-          "name": "last_login",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false,
-          "default": true
-        },
-        "role": {
-          "name": "role",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'user'"
         }
       },
       "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "users_username_unique": {
-          "name": "users_username_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "username"
-          ]
-        },
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+      "foreignKeys": {
+        "oauth_accounts_user_id_users_id_fk": {
+          "name": "oauth_accounts_user_id_users_id_fk",
+          "tableFrom": "oauth_accounts",
+          "tableTo": "users",
+          "columnsFrom": [
+            "user_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
-      }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
     },
     "public.mission_participants": {
       "name": "mission_participants",
@@ -411,6 +451,12 @@
         },
         "user_id": {
           "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "profile_id": {
+          "name": "profile_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": false
@@ -457,6 +503,19 @@
           ],
           "onDelete": "cascade",
           "onUpdate": "no action"
+        },
+        "mission_participants_profile_id_profiles_id_fk": {
+          "name": "mission_participants_profile_id_profiles_id_fk",
+          "tableFrom": "mission_participants",
+          "tableTo": "profiles",
+          "columnsFrom": [
+            "profile_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {
@@ -490,6 +549,12 @@
         "description": {
           "name": "description",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -547,7 +612,21 @@
         }
       },
       "indexes": {},
-      "foreignKeys": {},
+      "foreignKeys": {
+        "missions_created_by_users_id_fk": {
+          "name": "missions_created_by_users_id_fk",
+          "tableFrom": "missions",
+          "tableTo": "users",
+          "columnsFrom": [
+            "created_by"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     }
