@@ -1,22 +1,27 @@
 import { defineConfig } from 'drizzle-kit';
-import fs from 'fs';
 import path from 'path';
 
-if (!process.env.DATABASE_ROOT_URL) throw new Error('DATABASE_ROOT_URL is not set');
+// Base connection details
+const host = '192.168.1.180';
+const port = '32170';
+const database = 'owldivers_db';
+const user = 'owl_root';
+const password = '8LMCtwkbkMa8E67MSA2PqdP0PD9PsIRyibaWKyh4FEX1EChcrOizdEiRHzSwpd81';
+
+// Get certificate paths
+const certPath = path.resolve(__dirname, 'certs', 'client.crt');
+const keyPath = path.resolve(__dirname, 'certs', 'client.key');
+const caPath = path.resolve(__dirname, 'certs', 'root.crt');
+
+// Construct the URL with all SSL parameters
+const connectionURL = `postgresql://${user}:${password}@${host}:${port}/${database}?sslmode=require&sslcert=${certPath}&sslkey=${keyPath}&sslrootcert=${caPath}`;
 
 export default defineConfig({
   schema: './src/lib/server/db/schema/*.ts',
   out: './src/lib/server/db/migrations', 
   dbCredentials: {
-    url: process.env.DATABASE_ROOT_URL,
-    ssl: {
-      rejectUnauthorized: true,
-      ca: fs.readFileSync(path.resolve(__dirname, 'certs', 'root.crt')).toString(),
-      key: fs.readFileSync(path.resolve(__dirname, 'certs', 'client.key')).toString(),
-      cert: fs.readFileSync(path.resolve(__dirname, 'certs', 'client.crt')).toString(),
-    }
+    url: connectionURL,
   },
-
   verbose: true,
   strict: true,
   dialect: 'postgresql'

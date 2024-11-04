@@ -1,1 +1,1 @@
-ALTER TABLE "profiles" ALTER COLUMN "achievements" SET DEFAULT ;
+ALTER TABLE "profiles" ALTER COLUMN "achievements" SET DEFAULT '{}';
