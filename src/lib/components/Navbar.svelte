@@ -1,122 +1,97 @@
 <script lang="ts">
-  import { Button } from "$lib/components/ui/button";
-  import { Menu, User } from "lucide-svelte";
-  import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-    DropdownMenuSeparator
-  } from "$lib/components/ui/dropdown-menu";
+  import { page } from '$app/stores';
+  import HamburgerIcon from './icons/HamburgerIcon.svelte';
+  import { slide } from 'svelte/transition';
 
   const navItems = [
-    { title: 'RECOMMENDED LOADOUTS', href: '/loadouts' },
-    { title: 'ACTIVE OPERATIONS', href: '/active_operations' },
-    { title: 'MISSION HISTORY', href: '/mission_history' },
-    { title: 'COMMENDATIONS & DEMERITS', href: '/commendations' },
-    { title: 'ACTIVE PERSONNEL', href: '/personnel' }
+    { href: '/operations', label: 'ACTIVE OPERATIONS' },
+    { href: '/loadouts', label: 'LOADOUTS' },
+    { href: '/personnel', label: 'PERSONNEL' },
+    { href: '/history', label: 'MISSION HISTORY' },
+    { href: '/commendations', label: 'COMMENDATIONS' },
   ];
 
-  function handleLogin() {
-    window.location.href = '/auth/login';
-  }
+  let menuOpen = false;
 
-  function handleRegister() {
-    window.location.href = '/auth/register';
+  function toggleMenu() {
+    menuOpen = !menuOpen;
   }
-
-  function handleLogout() {
-    fetch('/auth/logout', { method: 'POST' })
-      .then(() => {
-        window.location.href = '/';
-      });
-  }
-
-  let isOpen = false;
-  let userMenuOpen = false;
-  export let user: { username: string } | null = null;
 </script>
 
-<div class="w-full border-b border-red-600/20 bg-black/80 backdrop-blur-sm">
-  <nav class="w-full">
-    <div class="w-full flex h-16 items-center justify-between px-4">
-      <div class="flex items-center gap-4">
-        <DropdownMenu bind:open={isOpen}>
-          <div class="relative">
-            <DropdownMenuTrigger class="inline-flex items-center justify-center rounded-md text-sm font-mono transition-colors hover:bg-red-900/20 text-red-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2 cursor-pointer p-2">
-              <Menu class="h-6 w-6" />
-              <span class="sr-only">Toggle menu</span>
-            </DropdownMenuTrigger>
-          </div>
-          <DropdownMenuContent 
-            class="w-72 mt-2 bg-black/90 border border-red-500/20 shadow-lg rounded-md font-mono"
+<!-- Navigation -->
+<nav class="border-b border-themed backdrop-blur-sm bg-background/80 sticky top-0 z-50">
+  <div class="container max-w-7xl mx-auto px-4">
+    <div class="flex items-center justify-between h-16">
+      <!-- Left: Hamburger Menu -->
+      <div class="relative">
+        <HamburgerIcon open={menuOpen} on:click={toggleMenu} />
+        
+        {#if menuOpen}
+          <div 
+            class="absolute top-full left-0 w-64 mt-2 bg-background border border-themed"
+            transition:slide={{ duration: 200 }}
           >
-            {#each navItems as item}
-              <DropdownMenuItem class="focus:bg-red-900/20">
+            <div class="p-2 border-b border-themed">
+              <p class="text-[10px] font-mono tracking-[0.2em] text-primary">TACTICAL MENU</p>
+            </div>
+            <div class="py-2">
+              {#each navItems as { href, label }}
                 <a
-                  href={item.href}
-                  class="w-full px-4 py-2 text-sm text-gray-300 hover:text-red-500 transition-colors rounded-sm"
+                  {href}
+                  class="flex items-center gap-3 px-4 py-2 font-mono text-xs tracking-[0.1em] 
+                         hover:bg-accent/20 transition-colors
+                         {$page.url.pathname === href ? 'text-primary bg-accent/10' : 'text-muted'}"
+                  on:click={() => menuOpen = false}
                 >
-                  {item.title}
+                  <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
+                  {label}
                 </a>
-              </DropdownMenuItem>
-            {/each}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              {/each}
+            </div>
+          </div>
+        {/if}
+      </div>
 
-        <a href="/" class="text-xl font-mono font-bold text-red-500 hover:text-red-400 transition-colors tracking-wider">
-          OWLDIVERS
+      <!-- Center: Logo -->
+      <div class="flex items-center gap-2">
+        <div class="w-2 h-2 bg-primary animate-pulse rounded-full"></div>
+        <a href="/dashboard" class="font-mono text-primary text-sm tracking-[0.2em] font-bold">
+          OWLDIVER
         </a>
       </div>
 
-      <div class="flex items-center gap-2">
-        {#if user}
-          <DropdownMenu bind:open={userMenuOpen}>
-            <DropdownMenuTrigger class="inline-flex items-center justify-center rounded-full w-10 h-10 bg-red-900/50 hover:bg-red-800/50 border border-red-500/50 transition-colors">
-              <User class="h-5 w-5 text-red-500" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent class="w-56 mt-2 bg-black/90 border border-red-500/20 font-mono">
-              <div class="px-4 py-2 text-sm font-semibold border-b border-red-500/20 text-red-500">
-                OPERATIVE: {user.username}
-              </div>
-              <DropdownMenuItem class="focus:bg-red-900/20">
-                <a href="/auth/account-settings" class="w-full text-gray-300 hover:text-red-500 transition-colors">
-                  SECURITY SETTINGS
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator class="bg-red-500/20" />
-              <DropdownMenuItem class="focus:bg-red-900/20">
-                <button class="w-full text-left text-red-500 hover:text-red-400 transition-colors" on:click={handleLogout}>
-                  TERMINATE SESSION
-                </button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        {:else}
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            class="hidden sm:inline-flex font-mono text-red-500 hover:bg-red-900/20 hover:text-red-400"
-            on:click={handleLogin}
+      <!-- Right: Auth Menu -->
+      <div class="flex items-center gap-4">
+        <a 
+          href="/auth/account-settings"
+          class="font-mono text-xs tracking-[0.1em] text-muted hover:text-primary transition-colors
+                 flex items-center gap-2"
+        >
+          <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
+          SETTINGS
+        </a>
+        <form action="/auth/logout" method="POST">
+          <button 
+            type="submit"
+            class="font-mono text-xs tracking-[0.1em] text-primary hover:text-red-400 transition-colors
+                   flex items-center gap-2"
           >
-            LOGIN
-          </Button>
-          <Button 
-            size="sm"
-            class="font-mono bg-red-900/50 hover:bg-red-800/50 text-red-500 border border-red-500/50"
-            on:click={handleRegister}
-          >
-            ENLIST NOW
-          </Button>
-        {/if}
+            <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
+            LOGOUT
+          </button>
+        </form>
       </div>
     </div>
-  </nav>
-</div>
+  </div>
+</nav>
 
-<style>
-  :global(.dropdown-menu-content) {
-    position: absolute;
-    z-index: 999;
-  }
-</style>
+<!-- Menu Overlay -->
+{#if menuOpen}
+  <div 
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+    on:click={toggleMenu}
+    role="button"
+    tabindex="0"
+    aria-label="Close menu"
+  ></div>
+{/if}
