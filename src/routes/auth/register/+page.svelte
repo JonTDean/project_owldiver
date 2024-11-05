@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { TerminalPanel, TerminalForm, BootSequence } from "$lib/components/ui/layout/terminal";
-  import { EtherealBackground } from "$lib/components/ui/effects";
+  import { enhance } from '$app/forms';
+  import AuthLayout from '$lib/components/ui/layout/AuthLayout.svelte';
+  import { Input } from '$lib/components/ui/input';
+  import { Button } from '$lib/components/ui/button';
   import type { ActionData } from './$types';
-  import toast from "svelte-french-toast";
-  import { onMount } from 'svelte';
-  
+  import toast from 'svelte-french-toast';
+
   export let form: ActionData;
 
   let loading = false;
@@ -15,21 +16,9 @@
     confirmPassword: '',
   };
 
-  // Form validation
   $: isValid = formData.password === formData.confirmPassword && 
                formData.password.length >= 8 &&
                formData.email.includes('@');
-
-  const fields = ['username', 'email', 'password', 'confirmPassword'];
-  const bootSequenceLines = [
-    "INITIALIZING SUPER EARTH DEFENSE NETWORK...",
-    "ESTABLISHING SECURE CONNECTION...",
-    "LOADING REGISTRATION PROTOCOLS...",
-    "STANDING BY FOR NEW RECRUIT DATA..."
-  ];
-
-  let currentBootLine = 0;
-  let showBootSequence = true;
 
   function handleSubmit() {
     if (!isValid) {
@@ -37,41 +26,72 @@
       return;
     }
     loading = true;
-  }
-
-  onMount(() => {
-    const interval = setInterval(() => {
-      currentBootLine++;
-      if (currentBootLine >= bootSequenceLines.length) {
-        showBootSequence = false;
-        clearInterval(interval);
+    
+    return async ({ result }) => {
+      loading = false;
+      if (result.type === 'success') {
+        window.location.href = '/auth/setup-profile';
+      } else {
+        toast.error(form?.message || 'Registration failed');
       }
-    }, 800);
-  });
+    };
+  }
 </script>
 
-<BootSequence 
-  lines={bootSequenceLines}
-  show={showBootSequence}
-  currentLine={currentBootLine}
-/>
+<AuthLayout 
+  title="Enlistment Terminal"
+  subtitle="AWAITING NEW RECRUIT DATA"
+>
+  <form 
+    method="POST" 
+    class="space-y-6 font-mono"
+    use:enhance={handleSubmit}
+  >
+    <div class="space-y-4">
+      <Input
+        name="username"
+        placeholder="USERNAME"
+        bind:value={formData.username}
+        required
+      />
+      
+      <Input
+        name="email"
+        type="email"
+        placeholder="EMAIL"
+        bind:value={formData.email}
+        required
+      />
+      
+      <Input
+        name="password"
+        type="password"
+        placeholder="PASSWORD"
+        bind:value={formData.password}
+        required
+      />
+      
+      <Input
+        name="confirmPassword"
+        type="password"
+        placeholder="CONFIRM PASSWORD"
+        bind:value={formData.confirmPassword}
+        required
+      />
+    </div>
 
-<div class="min-h-screen flex items-center justify-center px-4 relative overflow-hidden bg-black">
-  <EtherealBackground />
+    <Button 
+      type="submit"
+      disabled={loading || !isValid}
+      class="w-full"
+    >
+      {loading ? 'PROCESSING...' : 'ENLIST NOW'}
+    </Button>
 
-  <div class="w-full max-w-md space-y-8 relative z-10">
-    <TerminalPanel 
-      title="ENLISTMENT TERMINAL"
-      securityLevel="ALPHA"
-      statusMessage="AWAITING CREDENTIALS"
-    />
-
-    <TerminalForm
-      {fields}
-      {formData}
-      {loading}
-      error={form?.message}
-      onSubmit={handleSubmit}
-    />
-  </div>
-</div>
+    <div class="text-sm text-center text-gray-400">
+      <a href="/auth/login" class="hover:text-red-500 transition-colors">
+        Already a Helldiver? Login Here
+      </a>
+    </div>
+  </form>
+</AuthLayout>
