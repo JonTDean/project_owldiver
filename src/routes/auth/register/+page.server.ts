@@ -1,14 +1,22 @@
 import { fail, redirect } from '@sveltejs/kit';
-import type { Actions } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import { getDb } from '$lib/server/db';
 import { users } from '$lib/server/db/schema';
 import * as bcrypt from 'bcrypt';
-import { generateSessionToken, createSession } from '$lib/server/auth/session';
+import { createSession } from '$lib/server/auth/session';
+import { generateUUID } from '$lib/utils';
 
 interface ActionData {
   success: boolean;
   message: string;
 }
+
+export const load: PageServerLoad = async ({ locals }) => {
+  if (locals.user) {
+    throw redirect(302, '/dashboard');
+  }
+  return {};
+};
 
 export const actions = {
   default: async ({ request, cookies }) => {
@@ -27,9 +35,9 @@ export const actions = {
       } satisfies ActionData);
     }
 
-    try {
-      const db = getDb(true);
+    const db = getDb(true);
 
+    try {
       // Check if user already exists
       const existingUser = await db.query.users.findFirst({
         where: (users, { eq }) => eq(users.email, email)
@@ -45,9 +53,11 @@ export const actions = {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create user
+      // Create user with UUID
+      const userId = generateUUID();
       const [newUser] = await db.insert(users)
         .values({
+          id: userId,
           username,
           email,
           password_hash: hashedPassword,
@@ -57,11 +67,18 @@ export const actions = {
         .returning();
 
       // Create session
-      const token = generateSessionToken();
-      await createSession(token, newUser.id);
+      const { accessToken, refreshToken } = await createSession(newUser.id);
 
-      // Set session cookie
-      cookies.set('session_token', token, {
+      // Set session cookies
+      cookies.set('session_token', accessToken, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 15 // 15 minutes
+      });
+
+      cookies.set('refresh_token', refreshToken, {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -69,7 +86,10 @@ export const actions = {
         maxAge: 60 * 60 * 24 * 30 // 30 days
       });
 
-      throw redirect(303, '/dashboard');
+      return {
+        success: true,
+        message: 'Registration successful'
+      };
     } catch (err) {
       console.error('Registration error:', err);
       return fail(500, {

@@ -1,9 +1,23 @@
-import { env } from '$env/dynamic/private';
+import { config } from 'dotenv';
+import { join } from 'path';
 
-// Validate and export environment variables
-export const DATABASE_CLIENT_URL = env.DATABASE_CLIENT_URL ?? process.env.DATABASE_CLIENT_URL;
-export const DATABASE_ROOT_URL = env.DATABASE_ROOT_URL ?? process.env.DATABASE_ROOT_URL;
+// Load environment variables from .env file
+config({ path: join(process.cwd(), '.env') });
 
-if (!DATABASE_CLIENT_URL || !DATABASE_ROOT_URL) {
-    throw new Error('Database environment variables are not properly configured');
+// Helper function to get required env variables
+function requireEnv(name: string): string {
+    const value = process.env[name];
+    if (!value) {
+        throw new Error(`Missing required environment variable: ${name}`);
+    }
+    return value;
 }
+
+// Database URLs
+export const DATABASE_CLIENT_URL = requireEnv('DATABASE_CLIENT_URL');
+export const DATABASE_ROOT_URL = requireEnv('DATABASE_ROOT_URL');
+
+// SSL Certificates
+export const POSTGRES_CA_CERT = requireEnv('PGSSLROOTCERT');
+export const POSTGRES_CLIENT_KEY = requireEnv('PGSSLKEY');
+export const POSTGRES_CLIENT_CERT = requireEnv('PGSSLCERT');

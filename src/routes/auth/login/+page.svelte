@@ -1,19 +1,33 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import type { ActionResult } from '@sveltejs/kit';
   import { Button } from '$lib/components/ui/button';
   import { Input } from '$lib/components/ui/input';
   import { Label } from '$lib/components/ui/label';
   import toast from 'svelte-french-toast';
   import { DiscordIcon, GoogleIcon } from '$lib/components/icons';
 
-  let email = '';
+  let loading = false;
+  let identifier = '';
   let password = '';
+
+  const handleSubmit = () => {
+    loading = true;
+    return async ({ result, update }: { result: ActionResult, update: () => Promise<void> }) => {
+      if (result.type === 'failure') {
+        loading = false;
+        toast.error(result.data?.message || 'AUTHENTICATION FAILED - CHECK YOUR CREDENTIALS SOLDIER');
+      }
+      // Make sure we call update() to handle the redirect
+      await update();
+    };
+  };
 </script>
 
-<div class="fixed inset-0 bg-black">
+<div class="fixed inset-0" style="background-color: #0a0a0a;">
   <!-- Content Overlay -->
   <div class="absolute inset-0 z-10 flex flex-col items-center justify-center text-center text-white">
-    <div class="space-y-6 p-8 rounded-lg bg-black max-w-md mx-auto border-2 border-yellow-500/50">
+    <div class="space-y-6 p-8 rounded-lg bg-black/40 backdrop-blur-sm max-w-md mx-auto border border-red-500/20">
       <!-- Military-style header -->
       <div class="border-b-2 border-red-600 pb-4">
         <h2 class="text-sm font-mono tracking-widest text-red-500 mb-2">SUPER EARTH MILITARY COMMAND</h2>
@@ -24,27 +38,18 @@
       <form 
         class="space-y-6 font-mono" 
         method="POST" 
-        use:enhance={() => {
-          return async ({ result }) => {
-            if (result.type === 'success') {
-              toast.success('Welcome back, Helldiver!');
-              // Redirect will be handled by the server
-            } else {
-              toast.error('Authentication failed. Check your credentials.');
-            }
-          };
-        }}
+        action="?/login"
+        use:enhance={handleSubmit}
       >
-        <!-- Form fields remain the same but with name attributes -->
         <div class="space-y-2 text-left">
-          <Label class="text-white/90 uppercase tracking-wider" for="email">Identification Code</Label>
+          <Label class="text-white/90 uppercase tracking-wider" for="identifier">Codename or Email</Label>
           <Input
-            id="email"
-            name="email"
-            type="email"
-            bind:value={email}
-            class="bg-black border-white/20 text-white placeholder:text-gray-500 focus:border-red-500"
-            placeholder="ENTER EMAIL"
+            id="identifier"
+            name="identifier"
+            type="text"
+            bind:value={identifier}
+            class="bg-black/50 border-white/20 text-white placeholder:text-gray-500 focus:border-red-500"
+            placeholder="ENTER CODENAME OR EMAIL"
             required
           />
         </div>
@@ -56,23 +61,30 @@
             name="password"
             type="password"
             bind:value={password}
-            class="bg-black border-white/20 text-white placeholder:text-gray-500 focus:border-red-500"
-            placeholder="ENTER PASSWORD"
+            class="bg-black/50 border-white/20 text-white placeholder:text-gray-500 focus:border-red-500"
+            placeholder="ENTER SECURITY KEY"
             required
           />
         </div>
 
-        <!-- Button remains the same but type="submit" -->
         <Button 
           type="submit"
-          class="relative group w-full bg-red-700 hover:bg-red-800 text-white font-mono border-2 border-red-500 
-          transform transition-all duration-200 hover:scale-105 px-8 py-4 uppercase tracking-widest
-          before:absolute before:inset-0 before:border-2 before:border-red-500/50 before:transform before:translate-x-1 before:translate-y-1
-          after:absolute after:inset-0 after:border-2 after:border-white/10 after:-translate-x-1 after:-translate-y-1
-          shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]"
+          disabled={loading}
+          class="relative group w-full bg-red-900/50 hover:bg-red-800/50 text-red-500 font-mono border border-red-500/50 
+          transform transition-all duration-200 hover:scale-105 px-8 py-4 uppercase tracking-wider"
         >
-          <span class="relative z-10">Login</span>
+          <span class="relative z-10 flex items-center justify-center gap-2">
+            <span class="text-red-300">&gt;</span>
+            {loading ? 'AUTHENTICATING...' : 'LOGIN'}
+            <span class="text-red-300">&lt;</span>
+          </span>
         </Button>
+
+        <div class="text-sm text-gray-400">
+          <a href="/auth/register" class="hover:text-red-500 transition-colors">
+            Not a Helldiver? Enlist Here
+          </a>
+        </div>
       </form>
 
       <div class="space-y-4 mt-6">

@@ -1,10 +1,30 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { cubicOut } from "svelte/easing";
-import type { TransitionConfig } from "svelte/transition";
+import { cubicOut } from 'svelte/easing';
+import type { TransitionConfig } from 'svelte/transition';
 
-export function cn(...inputs: ClassValue[]) {
-	return twMerge(clsx(inputs));
+/**
+ * Generates a cryptographically secure random string
+ * @param length The length of the string to generate
+ * @returns A random string of the specified length
+ */
+export function generateRandomString(length: number): string {
+	const array = new Uint8Array(length);
+	crypto.getRandomValues(array);
+	return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Generates a UUID v4
+ * @returns A UUID v4 string
+ */
+export function generateUUID(): string {
+	return crypto.randomUUID();
+}
+
+/**
+ * Utility function for combining Tailwind CSS classes
+ */
+export function cn(...inputs: (string | undefined | null | false)[]): string {
+	return inputs.filter(Boolean).join(' ');
 }
 
 type FlyAndScaleParams = {
@@ -14,18 +34,17 @@ type FlyAndScaleParams = {
 	duration?: number;
 };
 
+/**
+ * A custom transition that combines fly and scale
+ */
 export const flyAndScale = (
 	node: Element,
 	params: FlyAndScaleParams = { y: -8, x: 0, start: 0.95, duration: 150 }
 ): TransitionConfig => {
 	const style = getComputedStyle(node);
-	const transform = style.transform === "none" ? "" : style.transform;
+	const transform = style.transform === 'none' ? '' : style.transform;
 
-	const scaleConversion = (
-		valueA: number,
-		scaleA: [number, number],
-		scaleB: [number, number]
-	) => {
+	const scaleConversion = (valueA: number, scaleA: [number, number], scaleB: [number, number]) => {
 		const [minA, maxA] = scaleA;
 		const [minB, maxB] = scaleB;
 
@@ -35,13 +54,11 @@ export const flyAndScale = (
 		return valueB;
 	};
 
-	const styleToString = (
-		style: Record<string, number | string | undefined>
-	): string => {
+	const styleToString = (style: Record<string, number | string | undefined>): string => {
 		return Object.keys(style).reduce((str, key) => {
 			if (style[key] === undefined) return str;
 			return str + `${key}:${style[key]};`;
-		}, "");
+		}, '');
 	};
 
 	return {

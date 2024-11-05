@@ -17,7 +17,8 @@
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
 		"db:check": "drizzle-kit check",
-		"db:drop": "tsx src/lib/server/db/drop-tables.ts"
+		"db:drop": "tsx src/lib/server/db/drop-tables.ts",
+		"db:setup": "tsx src/lib/server/db/setup-permissions.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",

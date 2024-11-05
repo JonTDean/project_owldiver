@@ -31,14 +31,15 @@
       return;
     }
     
-    return async ({ result }: { result: any }) => {
+    return async ({ result, update }) => {
       loading = false;
-      
-      if (result.type === 'redirect') {
+
+      if (result.type === 'success') {
         toast.success('REGISTRATION SUCCESSFUL - WELCOME TO SUPER EARTH');
-        await goto(result.location);
+        await goto('/dashboard');
       } else if (result.type === 'failure') {
         toast.error(result.data?.message || 'REGISTRATION FAILED - TRY AGAIN SOLDIER');
+        await update();
       }
     };
   };

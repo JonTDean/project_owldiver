@@ -2,13 +2,15 @@ import { redirect } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
 import { invalidateSession } from '$lib/server/auth/session';
 
-export const POST: RequestHandler = async ({ cookies }) => {
-  const token = cookies.get('session_token');
+export const POST: RequestHandler = async ({ cookies, locals }) => {
+  const sessionToken = cookies.get('session_token');
   
-  if (token) {
-    await invalidateSession(token);
-    cookies.delete('session_token', { path: '/' });
+  if (sessionToken) {
+    await invalidateSession(sessionToken);
   }
   
-  throw redirect(302, '/');
+  cookies.delete('session_token', { path: '/' });
+  cookies.delete('refresh_token', { path: '/' });
+  
+  throw redirect(303, '/auth/login');
 }; 
