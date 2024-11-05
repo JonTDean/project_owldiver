@@ -14,7 +14,7 @@ const keyPath = path.resolve(__dirname, 'certs', 'client.key');
 const caPath = path.resolve(__dirname, 'certs', 'root.crt');
 
 // Construct the URL with all SSL parameters
-const connectionURL = `postgresql://${user}:${password}@${host}:${port}/${database}?sslmode=require&sslcert=${certPath}&sslkey=${keyPath}&sslrootcert=${caPath}`;
+const connectionURL = `postgresql://${user}:${password}@${host}:${port}/${database}?sslmode=verify-full&sslcert=${certPath}&sslkey=${keyPath}&sslrootcert=${caPath}`;
 
 export default defineConfig({
   schema: './src/lib/server/db/schema/*.ts',
