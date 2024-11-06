@@ -1,6 +1,6 @@
 <script lang="ts">
   import AuthLayout from '$lib/components/ui/layout/AuthLayout.svelte';
-  import LoginForm from '$lib/components/auth/LoginPage/LoginForm.svelte';
+  import LoginForm from '$lib/components/auth/LoginForm.svelte';
   import { onMount } from 'svelte';
   import { formAnimation } from '$lib/stores/formAnimation';
   import { bootState } from '$lib/stores/bootSequence';

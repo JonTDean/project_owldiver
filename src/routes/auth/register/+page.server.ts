@@ -1,170 +1,148 @@
-import { fail, redirect } from '@sveltejs/kit';
-import type { Actions, PageServerLoad } from './$types';
+import { fail } from '@sveltejs/kit';
+import type { Actions } from './$types';
 import { getDb } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
-import * as bcrypt from 'bcrypt';
+import { users } from '$lib/server/db/schema/auth';
+import { profiles, combat_stats } from '$lib/server/db/schema/app';
+import bcrypt from 'bcrypt';
+import { eq } from 'drizzle-orm';
 import { createSession } from '$lib/server/auth/session';
-import { generateUUID } from '$lib/utils';
-import { profiles } from '$lib/server/db/schema';
 
-interface RegisterFormData {
-  username: string;
-  email: string;
-  password: string;
-  codename: string;
-  steamId?: string;
-  steamUsername?: string;
-  nationality: string;
-  motivation: string;
-}
-
-
-export const load: PageServerLoad = async ({ locals }) => {
-  if (locals.user) {
-    throw redirect(302, '/dashboard');
-  }
-  return {};
-};
-
-export const actions = {
+export const actions: Actions = {
   default: async ({ request, cookies }) => {
-    const formData = await request.formData();
+    const db = getDb();
     
-    // Extract and validate form data
-    const data: RegisterFormData = {
-      username: formData.get('username') as string,
-      email: formData.get('email') as string,
-      password: formData.get('password') as string,
-      codename: formData.get('codename') as string,
-      steamId: formData.get('steamId') as string || undefined,
-      steamUsername: formData.get('steamUsername') as string || undefined,
-      nationality: formData.get('nationality') as string,
-      motivation: formData.get('motivation') as string,
-    };
-
-    // Validate required fields
-    if (!data.username || !data.email || !data.password || !data.codename || !data.nationality) {
-      return fail(400, {
-        success: false,
-        message: 'Required fields are missing'
-      });
-    }
-
-    const db = getDb(true);
-
     try {
-      // Check if user or codename already exists
-      const [existingUser, existingProfile] = await Promise.all([
-        db.query.users.findFirst({
-          where: (users, { eq }) => eq(users.email, data.email)
-        }),
-        db.query.profiles.findFirst({
-          where: (profiles, { eq }) => eq(profiles.codename, data.codename)
-        })
-      ]);
+      const formData = await request.formData();
+      const data = {
+        username: formData.get('username') as string,
+        email: formData.get('email') as string,
+        password: formData.get('password') as string
+      };
+
+      // Check if user exists
+      const email = data.email.toLowerCase();
+      const existingUser = await db.query.users.findFirst({
+        where: eq(users.email, email),
+        columns: {
+          id: true,
+          email: true
+        }
+      });
 
       if (existingUser) {
         return fail(400, {
-          success: false,
-          message: 'Email already registered'
+          type: 'failure',
+          data: {
+            message: 'OPERATIVE ALREADY EXISTS IN DATABASE'
+          }
         });
       }
 
-      if (existingProfile) {
-        return fail(400, {
-          success: false,
-          message: 'Codename already taken'
-        });
-      }
-
-      // Start transaction
-      return await db.transaction(async (tx) => {
-        // Create user
+      // Create user and related data in transaction
+      const result = await db.transaction(async (tx) => {
+        // Hash password
         const hashedPassword = await bcrypt.hash(data.password, 10);
-        const userId = generateUUID();
         
+        // Create user
         const [newUser] = await tx.insert(users)
           .values({
-            id: userId,
             username: data.username,
-            email: data.email,
+            email: email,
             password_hash: hashedPassword,
-            role: 'user',
-            is_active: true
+            role: 'user'
           })
           .returning();
 
+        if (!newUser?.id) {
+          throw new Error('Failed to create user');
+        }
+
         // Create profile
-        await tx.insert(profiles).values({
-          userId: newUser.id,
-          codename: data.codename,
-          steamId: data.steamId,
-          steamUsername: data.steamUsername,
-          nationality: data.nationality,
-          motivation: data.motivation,
-          rank: 'RECRUIT',
-          securityClearance: 1,
-          status: 'ACTIVE',
-          specialization: 'NONE',
-          careerStats: {
-            enemy_kills: 0,
-            terminid_kills: 0,
-            automaton_kills: 0,
-            friendly_kills: 0,
-            grenade_kills: 0,
-            melee_kills: 0,
-            eagle_kills: 0,
-            deaths: 0,
-            shots_fired: 0,
-            shots_hit: 0,
-            orbitals_used: 0,
-            defensive_stratagems_used: 0,
-            eagle_stratagems_used: 0,
-            supply_stratagems_used: 0,
-            reinforce_stratagems_used: 0,
-            total_stratagems_used: 0,
-            successful_extractions: 0,
-            objectives_completed: 0,
-            missions_played: 0,
-            missions_won: 0,
-            in_mission_time: "00:00:00",
-            samples_collected: 0,
-            total_xp_earned: 0
-          }
-        });
+        const [profile] = await tx.insert(profiles)
+          .values({
+            user_id: newUser.id,
+            rank: 'RECRUIT',
+            security_clearance: 1,
+            status: 'ACTIVE'
+          })
+          .returning();
 
-        // Create session
-        const { accessToken, refreshToken } = await createSession(newUser.id);
+        // Create combat stats with correct schema
+        await tx.insert(combat_stats)
+          .values({
+            profile_id: profile.id,
+            career_stats: {
+              enemy_kills: 0,
+              terminid_kills: 0,
+              automaton_kills: 0,
+              friendly_kills: 0,
+              grenade_kills: 0,
+              melee_kills: 0,
+              eagle_kills: 0,
+              deaths: 0,
+              shots_fired: 0,
+              shots_hit: 0,
+              orbitals_used: 0,
+              defensive_stratagems_used: 0,
+              eagle_stratagems_used: 0,
+              supply_stratagems_used: 0,
+              reinforce_stratagems_used: 0,
+              total_stratagems_used: 0,
+              successful_extractions: 0,
+              objectives_completed: 0,
+              missions_played: 0,
+              missions_won: 0,
+              in_mission_time: "00:00:00",
+              samples_collected: 0,
+              total_xp_earned: 0
+            }
+          });
 
-        // Set cookies
-        cookies.set('session_token', accessToken, {
-          path: '/',
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 60 * 15 // 15 minutes
-        });
-
-        cookies.set('refresh_token', refreshToken, {
-          path: '/',
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 30 // 30 days
-        });
-
-        return {
-          success: true,
-          message: 'Registration successful'
-        };
+        return newUser;
       });
 
-    } catch (err) {
-      console.error('Registration error:', err);
+      // Create session and set cookies
+      const { accessToken, refreshToken } = await createSession(result.id);
+
+      // Set cookies
+      cookies.set('session_token', accessToken, {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 60 * 15 // 15 minutes
+      });
+
+      cookies.set('refresh_token', refreshToken, {
+        path: '/',
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 24 * 30 // 30 days
+      });
+
+      // Return success instead of throwing redirect
+      return {
+        type: 'success',
+        data: {
+          flash: {
+            type: 'success',
+            message: 'ENLISTMENT SUCCESSFUL - WELCOME TO THE HELLDIVERS'
+          }
+        }
+      };
+
+    } catch (error) {
+      console.error('❌ Registration error:', error);
       return fail(500, {
-        success: false,
-        message: 'An error occurred during registration'
+        type: 'error',
+        data: {
+          flash: {
+            type: 'error',
+            message: 'REGISTRATION FAILED'
+          }
+        }
       });
     }
   }
-} satisfies Actions;
+};

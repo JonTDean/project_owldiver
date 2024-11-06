@@ -1,12 +1,9 @@
 import { getDb } from '$lib/server/db';
-import { sessions, users } from '$lib/server/db/schema';
-import { refresh_tokens } from '$lib/server/db/schema/refresh_tokens';
+import { sessions, users } from '$lib/server/db/schema/auth';
+import { refresh_tokens } from '$lib/server/db/schema/auth';
 import { and, eq, gt, isNull } from 'drizzle-orm';
-import type { User } from '$lib/types';
+import type { AuthUser } from '$lib/types';
 import { generateRandomString, generateUUID } from '$lib/utils';
-
-const ACCESS_TOKEN_EXPIRY = 15 * 60 * 1000; // 15 minutes
-const REFRESH_TOKEN_EXPIRY = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 export function generateSessionToken(): string {
   return generateUUID();
@@ -16,29 +13,42 @@ export function generateRefreshToken(): string {
   return generateRandomString(64);
 }
 
-export async function createSession(userId: string): Promise<{
-  accessToken: string;
-  refreshToken: string;
-}> {
-  const db = getDb(true);
-  const accessToken = generateSessionToken();
-  const refreshToken = generateRefreshToken();
-
-  // Create session
-  await db.insert(sessions).values({
-    id: accessToken,
-    userId: userId,
-    expiresAt: new Date(Date.now() + ACCESS_TOKEN_EXPIRY)
-  });
-
-  // Create refresh token
-  await db.insert(refresh_tokens).values({
-    token: refreshToken,
-    userId: userId,
-    expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRY)
-  });
-
-  return { accessToken, refreshToken };
+export async function createSession(userId: string) {
+  console.log('🔄 Starting session creation for user:', userId);
+  try {
+    const db = getDb();
+    
+    // Generate tokens
+    console.log('🔑 Generating tokens...');
+    const accessToken = generateUUID();
+    const refreshToken = generateUUID();
+    
+    // Calculate expiration times
+    const accessTokenExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+    const refreshTokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
+    
+    console.log('💾 Storing session in database...');
+    // Create session
+    await db.insert(sessions).values({
+      id: accessToken,
+      user_id: userId,
+      expires_at: accessTokenExpiry
+    });
+    
+    console.log('💾 Storing refresh token in database...');
+    // Create refresh token
+    await db.insert(refresh_tokens).values({
+      token: refreshToken,
+      user_id: userId,
+      expires_at: refreshTokenExpiry
+    });
+    
+    console.log('✅ Session creation complete');
+    return { accessToken, refreshToken };
+  } catch (error) {
+    console.error('❌ Error creating session:', error);
+    throw error;
+  }
 }
 
 export async function refreshSession(refreshToken: string): Promise<{
@@ -51,8 +61,8 @@ export async function refreshSession(refreshToken: string): Promise<{
   const tokenRecord = await db.query.refresh_tokens.findFirst({
     where: (rt) => and(
       eq(rt.token, refreshToken),
-      isNull(rt.revokedAt),
-      gt(rt.expiresAt, new Date())
+      isNull(rt.revoked_at),
+      gt(rt.expires_at, new Date())
     )
   });
 
@@ -62,7 +72,7 @@ export async function refreshSession(refreshToken: string): Promise<{
 
   // Get the user
   const user = await db.query.users.findFirst({
-    where: eq(users.id, tokenRecord.userId)
+    where: eq(users.id, tokenRecord.user_id)
   });
 
   if (!user) {
@@ -71,21 +81,21 @@ export async function refreshSession(refreshToken: string): Promise<{
 
   // Revoke old refresh token
   await db.update(refresh_tokens)
-    .set({ revokedAt: new Date() })
+    .set({ revoked_at: new Date() })
     .where(eq(refresh_tokens.token, refreshToken));
 
   // Create new session and refresh token
   return createSession(user.id);
 }
 
-export async function validateSessionToken(token: string): Promise<{ user: User } | null> {
+export async function validateSessionToken(token: string): Promise<{ user: AuthUser } | null> {
   const db = getDb(true);
   
   try {
     const session = await db.query.sessions.findFirst({
       where: (fields) => and(
         eq(fields.id, token),
-        gt(fields.expiresAt, new Date())
+        gt(fields.expires_at, new Date())
       )
     });
 
@@ -94,14 +104,20 @@ export async function validateSessionToken(token: string): Promise<{ user: User 
     }
 
     const user = await db.query.users.findFirst({
-      where: eq(users.id, session.userId)
+      where: eq(users.id, session.user_id),
+      columns: {
+        id: true,
+        username: true,
+        email: true,
+        role: true
+      }
     });
 
     if (!user) {
       return null;
     }
 
-    return { user: user as User };
+    return { user };
   } catch (error) {
     console.error('Session validation error:', error);
     return null;
@@ -113,10 +129,10 @@ export async function invalidateSession(sessionId: string): Promise<void> {
   await db.delete(sessions).where(eq(sessions.id, sessionId));
 }
 
-export async function invalidateAllUserSessions(userId: string): Promise<void> {
+export async function invalidateAllUserSessions(user_id: string): Promise<void> {
   const db = getDb(true);
-  await db.delete(sessions).where(eq(sessions.userId, userId));
+  await db.delete(sessions).where(eq(sessions.user_id, user_id));
   await db.update(refresh_tokens)
-    .set({ revokedAt: new Date() })
-    .where(eq(refresh_tokens.userId, userId));
+    .set({ revoked_at: new Date() })
+    .where(eq(refresh_tokens.user_id, user_id));
 } 

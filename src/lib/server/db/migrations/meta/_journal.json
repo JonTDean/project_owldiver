@@ -5,22 +5,15 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1730419774159,
-      "tag": "0000_perfect_darkstar",
+      "when": 1730894748887,
+      "tag": "0000_loud_dreaming_celestial",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1730419831377,
-      "tag": "0001_lively_dark_beast",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1730770507612,
-      "tag": "0002_chief_thena",
+      "when": 1730899590019,
+      "tag": "0001_overrated_ultimates",
       "breakpoints": true
     }
   ]

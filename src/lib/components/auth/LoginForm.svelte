@@ -21,13 +21,14 @@
 </script>
 
 <form 
-  class="space-y-6 font-mono relative scanline-effect" 
+  class="space-y-6 font-mono relative" 
   method="POST" 
   use:enhance={handleSubmit}
 >
   <div class="space-y-4">
     <MilitaryInput
       id="identifier"
+      name="identifier"
       label="IDENTIFICATION CODE"
       placeholder="ENTER CREDENTIALS"
       required
@@ -35,6 +36,7 @@
 
     <MilitaryInput
       id="password"
+      name="password"
       label="SECURITY KEY"
       type="password"
       placeholder="ENTER SECURITY KEY"
@@ -95,9 +97,5 @@
   :global(.tech-button:disabled) {
     opacity: 0.5 !important;
     cursor: not-allowed !important;
-  }
-
-  :global(.scanline-effect) {
-    position: relative;
   }
 </style> 

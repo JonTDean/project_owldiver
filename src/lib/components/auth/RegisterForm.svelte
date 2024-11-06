@@ -3,7 +3,8 @@
   import type { SubmitFunction } from '@sveltejs/kit';
   import { Button } from '$lib/components/ui/button';
   import MilitaryInput from '$lib/components/ui/military/MilitaryInput.svelte';
-  import toast from 'svelte-french-toast';
+  import { goto } from '$app/navigation';
+  import { registrationSuccess } from '$lib/stores/auth';
 
   let loading = false;
   let formData = {
@@ -19,12 +20,13 @@
 
   const handleSubmit: SubmitFunction = () => {
     loading = true;
+    
     return async ({ result }) => {
       loading = false;
+      
       if (result.type === 'success') {
-        toast.success('ENLISTMENT SUCCESSFUL');
-      } else {
-        toast.error('ENLISTMENT FAILED - TRY AGAIN');
+        registrationSuccess.set(true);
+        await goto('/dashboard', { replaceState: true });
       }
     };
   };
@@ -32,7 +34,7 @@
 
 <form 
   method="POST" 
-  class="space-y-6 font-mono relative scanline-effect"
+  class="space-y-6 font-mono relative"
   use:enhance={handleSubmit}
 >
   <div class="space-y-4">
@@ -75,12 +77,12 @@
   <Button 
     type="submit"
     disabled={loading || !isValid}
-    class="tech-button w-full relative"
+    class="tech-button w-full"
   >
-    <div class="flex items-center justify-center px-8">
-      <span class="absolute left-2 text-[#FFD700]/50 select-none">[</span>
+    <div class="relative flex items-center justify-center">
+      <span class="absolute left-0 text-[#FFD700]/50">[</span>
       {loading ? 'PROCESSING...' : 'CONFIRM ENLISTMENT'}
-      <span class="absolute right-2 text-[#FFD700]/50 select-none">]</span>
+      <span class="absolute right-0 text-[#FFD700]/50">]</span>
     </div>
   </Button>
 
@@ -103,7 +105,7 @@
     letter-spacing: 0.1em !important;
     padding: 0.75rem !important;
     position: relative;
-    overflow: visible !important;
+    overflow: hidden;
     transition: all 0.3s ease;
   }
 
@@ -117,7 +119,12 @@
     cursor: not-allowed !important;
   }
 
-  :global(.scanline-effect) {
-    position: relative;
+  :global(.toast-military) {
+    border: 1px solid #FFD700 !important;
+    background: rgba(0, 0, 0, 0.9) !important;
+    color: #FFD700 !important;
+    font-family: monospace !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
   }
 </style> 

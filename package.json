@@ -14,11 +14,12 @@
 		"test": "npm run test:unit -- --run",
 		"db:push": "drizzle-kit push",
 		"db:migrate": "drizzle-kit migrate",
+		"db:up": "drizzle-kit up",
 		"db:studio": "drizzle-kit studio",
 		"db:generate": "drizzle-kit generate",
 		"db:check": "drizzle-kit check",
-		"db:drop": "tsx src/lib/server/db/drop-tables.ts",
-		"db:setup": "tsx src/lib/server/db/setup-permissions.ts"
+		"db:reset": "tsx src/lib/server/db/reset.ts",
+		"db:init": "tsx src/lib/server/db/schema-manager.ts && tsx src/lib/server/db/push-tables.ts"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
@@ -64,6 +65,7 @@
 		"bits-ui": "^0.21.16",
 		"class-variance-authority": "^0.7.0",
 		"drizzle-orm": "^0.33.0",
+		"drizzle-zod": "^0.5.1",
 		"lucide-svelte": "^0.454.0",
 		"postgres": "^3.4.4",
 		"postprocessing": "^6.36.3",
@@ -72,6 +74,7 @@
 		"svelte-headless-table": "^0.18.3",
 		"svelte-legos": "^0.2.5",
 		"three": "^0.169.0",
-		"three-good-godrays": "^0.7.1"
+		"three-good-godrays": "^0.7.1",
+		"zod": "^3.23.8"
 	}
 }

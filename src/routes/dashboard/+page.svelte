@@ -1,9 +1,17 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import toast from 'svelte-french-toast';
+  import { registrationSuccess } from '$lib/stores/auth';
 
   onMount(() => {
-    toast.success('WELCOME BACK TO THE COMMAND CENTER, HELLDIVER');
+    if ($registrationSuccess) {
+      toast.success('ENLISTMENT SUCCESSFUL - WELCOME TO THE HELLDIVERS', {
+        className: 'toast-military',
+        icon: '⭐',
+        duration: 4000,
+      });
+      registrationSuccess.set(false);
+    }
   });
 </script>
 

@@ -3,7 +3,14 @@
 	import { theme } from '$lib/stores/theme';
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
+	import { navigating } from '$app/stores';
 	import Navbar from '$lib/components/Navbar.svelte';
+	import type { LayoutData } from './$types';
+	import { Toaster } from 'svelte-french-toast';
+	import toast from 'svelte-french-toast';
+
+	export let data: LayoutData;
 
 	// Apply theme CSS variables
 	$: themeStyles = `
@@ -24,18 +31,64 @@
 		link.rel = 'stylesheet';
 		document.head.appendChild(link);
 	});
+
+	// Navigation guard for client-side routing
+	$: {
+		const publicRoutes = ['/auth/register', '/auth/login', '/about', '/'];
+		const authRoutes = ['/auth/register', '/auth/login', '/'];
+		const isPublicRoute = publicRoutes.includes($page.url.pathname);
+		const isAuthRoute = authRoutes.includes($page.url.pathname);
+
+		if (data.user) {
+			if (isAuthRoute) {
+				goto('/dashboard');
+			}
+		} else if (!isPublicRoute) {
+			goto('/auth/login');
+		}
+	}
+
+	// Watch for flash messages in the page data
+	$: if ($page.data.flash?.message) {
+		const { message, type } = $page.data.flash;
+		const toastOptions = {
+			style: `
+				border: 1px solid #FFD700;
+				background: rgba(0, 0, 0, 0.95);
+				color: #FFD700;
+				font-family: monospace;
+				padding: 16px;
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+			`,
+			icon: type === 'success' ? '⭐' : '⚠️',
+			duration: 4000,
+		};
+
+		if (type === 'success') {
+			toast.success(message, toastOptions);
+		} else {
+			toast.error(message, toastOptions);
+		}
+	}
 </script>
+
+{#if $navigating}
+	<div class="loading">Loading...</div>
+{/if}
 
 <div 
 	class="min-h-screen bg-background text-foreground font-sans"
 	style={themeStyles}
 >
-	{#if $page.data.user}
-		<Navbar />
+	{#if $page.url.pathname !== '/auth/login' && $page.url.pathname !== '/auth/register'}
+		<Navbar user={data.user} />
 	{/if}
 
 	<!-- Main Content -->
 	<main class="min-h-[calc(100vh-4rem)]">
+		<Toaster />
 		<slot />
 	</main>
 </div>
@@ -80,5 +133,24 @@
 
 	:global(.border-themed) {
 		border-color: var(--color-border);
+	}
+
+	.loading {
+		position: fixed;
+		top: 0;
+		left: 0;
+		right: 0;
+		height: 3px;
+		background: linear-gradient(to right, #4f46e5, #818cf8);
+		animation: loading 1s infinite;
+	}
+
+	@keyframes loading {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
 	}
 </style>

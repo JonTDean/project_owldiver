@@ -1,19 +1,21 @@
 <script lang="ts">
   import AuthLayout from '$lib/components/ui/layout/AuthLayout.svelte';
-  import RegisterForm from '$lib/components/auth/RegisterPage/RegisterForm.svelte';
+  import RegisterForm from '$lib/components/auth/RegisterForm.svelte';
   import { onMount } from 'svelte';
   import { formAnimation } from '$lib/stores/formAnimation';
   import { bootState } from '$lib/stores/bootSequence';
+  import { Toaster } from 'svelte-french-toast';
 
   onMount(() => {
     formAnimation.reset();
-    // Reset boot state when page loads
     bootState.set({
       terminalComplete: false,
       formVisible: false
     });
   });
 </script>
+
+<Toaster />
 
 <AuthLayout 
   title="ENLISTMENT TERMINAL" 
