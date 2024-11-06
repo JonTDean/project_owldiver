@@ -13,9 +13,6 @@
   <EtherealBackground />
   
   <main class="w-full max-w-md space-y-8 relative z-10">
-    <div class="scanline-container">
-      <AnimatedText {title} {subtitle} />
-    </div>
     
     {#if !$bootState.terminalComplete}
       <div class="tech-frame mb-6">

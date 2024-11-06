@@ -1,9 +1,11 @@
 <script lang="ts">
   import { enhance } from '$app/forms';
+  import { goto } from '$app/navigation';
   import type { SubmitFunction } from '@sveltejs/kit';
   import { Button } from '$lib/components/ui/button';
-  import MilitaryInput from '$lib/components/ui/military/MilitaryInput.svelte';
-  import toast from 'svelte-french-toast';
+  import MilitaryInput from '$lib/components/ui/input/MilitaryInput.svelte';
+  import militaryToast from '$lib/components/ui/toast/military-toast';
+  import MilitaryHeader from '$lib/components/ui/header/MilitaryHeader.svelte';
 
   let loading = false;
 
@@ -11,69 +13,82 @@
     loading = true;
     return async ({ result }) => {
       loading = false;
+      
       if (result.type === 'success') {
-        toast.success('ACCESS GRANTED');
+        militaryToast.success('ACCESS GRANTED - WELCOME BACK HELLDIVER');
+        await goto('/dashboard', { replaceState: true });
+      } else if (result.type === 'failure') {
+        militaryToast.error(result.data?.message || 'ACCESS DENIED - INVALID CREDENTIALS');
       } else {
-        toast.error('ACCESS DENIED');
+        militaryToast.warning('SYSTEM MALFUNCTION - PLEASE TRY AGAIN');
       }
     };
   };
 </script>
 
-<form 
-  class="space-y-6 font-mono relative" 
-  method="POST" 
-  use:enhance={handleSubmit}
->
-  <div class="space-y-4">
-    <MilitaryInput
-      id="identifier"
-      name="identifier"
-      label="IDENTIFICATION CODE"
-      placeholder="ENTER CREDENTIALS"
-      required
-    />
+<div class="space-y-6">
+  <MilitaryHeader
+    title="SUPER EARTH TERMINAL"
+    subtitle="AUTHENTICATION REQUIRED"
+    securityLevel="LEVEL 5"
+  />
 
-    <MilitaryInput
-      id="password"
-      name="password"
-      label="SECURITY KEY"
-      type="password"
-      placeholder="ENTER SECURITY KEY"
-      required
-    />
-  </div>
+  <form 
+    class="space-y-6 font-mono relative" 
+    method="POST" 
+    action="?/login"
+    use:enhance={handleSubmit}
+  >
+    <div class="space-y-4">
+      <MilitaryInput
+        id="identifier"
+        name="identifier"
+        label="IDENTIFICATION CODE"
+        placeholder="ENTER CREDENTIALS"
+        required
+      />
 
-  <div class="space-y-4">
-    <Button 
-      type="submit"
-      class="tech-button w-full relative"
-      disabled={loading}
-    >
-      <div class="flex items-center justify-center px-8">
-        <span class="absolute left-2 text-[#FFD700]/50 select-none">[</span>
-        <span class="text-center">
-          {loading ? 'PROCESSING...' : 'AUTHENTICATE'}
-        </span>
-        <span class="absolute right-2 text-[#FFD700]/50 select-none">]</span>
-      </div>
-    </Button>
-
-    <div class="text-center space-y-2">
-      <p class="text-sm text-[#FFD700]/70">
-        NEW RECRUIT?
-      </p>
-      <a 
-        href="/auth/register" 
-        class="text-sm text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
-      >
-        <span class="text-[#FFD700]/50">[</span>
-        ENLIST NOW
-        <span class="text-[#FFD700]/50">]</span>
-      </a>
+      <MilitaryInput
+        id="password"
+        name="password"
+        label="SECURITY KEY"
+        type="password"
+        placeholder="ENTER SECURITY KEY"
+        required
+      />
     </div>
-  </div>
-</form>
+
+    <div class="space-y-4">
+      <Button 
+        type="submit"
+        class="tech-button w-full relative"
+        disabled={loading}
+      >
+        <div class="flex items-center justify-center px-8">
+          <span class="absolute left-2 text-[#FFD700]/50 select-none">[</span>
+          <span class="text-center">
+            {loading ? 'PROCESSING...' : 'AUTHENTICATE'}
+          </span>
+          <span class="absolute right-2 text-[#FFD700]/50 select-none">]</span>
+        </div>
+      </Button>
+
+      <div class="text-center space-y-2">
+        <p class="text-sm text-[#FFD700]/70">
+          NEW RECRUIT?
+        </p>
+        <a 
+          href="/auth/register" 
+          class="text-sm text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
+        >
+          <span class="text-[#FFD700]/50">[</span>
+          ENLIST NOW
+          <span class="text-[#FFD700]/50">]</span>
+        </a>
+      </div>
+    </div>
+  </form>
+</div>
 
 <style>
   :global(.tech-button) {

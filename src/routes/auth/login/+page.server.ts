@@ -1,8 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { Actions, PageServerLoad } from './$types';
 import { getDb } from '$lib/server/db';
-import { users } from '$lib/server/db/schema';
-import { or, eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 import { createSession } from '$lib/server/auth/session';
 
@@ -80,13 +78,13 @@ export const actions = {
         maxAge: 60 * 60 * 24 * 30 // 30 days
       });
 
+      return { success: true };
+
     } catch (error) {
       console.error('Login error:', error);
       return fail(500, {
         message: 'AN UNEXPECTED ERROR OCCURRED - PLEASE TRY AGAIN'
       });
     }
-
-    throw redirect(303, '/dashboard');
   }
 } satisfies Actions;

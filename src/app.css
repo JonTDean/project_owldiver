@@ -76,3 +76,139 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Add these styles to your global CSS */
+@keyframes militaryToastSlide {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+:root {
+  --military-gold: #FFD700;
+}
+
+.military-toast {
+  border: 1px solid rgba(255, 215, 0, 0.6) !important;
+  background: rgba(0, 0, 0, 0.95) !important;
+  color: #FFD700 !important;
+  font-family: monospace !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.1em !important;
+  padding: 1rem !important;
+  position: relative;
+  text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
+  box-shadow: 
+    0 0 15px rgba(255, 215, 0, 0.2),
+    inset 0 0 10px rgba(255, 215, 0, 0.1) !important;
+  border-radius: 0 !important; /* Make it square */
+}
+
+/* Glowing corners */
+.military-toast::before,
+.military-toast::after,
+.military-toast > *::before,
+.military-toast > *::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(255, 215, 0, 0.8);
+  pointer-events: none;
+}
+
+.military-toast::before {
+  top: -1px;
+  left: -1px;
+  border-right: 0;
+  border-bottom: 0;
+}
+
+.military-toast::after {
+  top: -1px;
+  right: -1px;
+  border-left: 0;
+  border-bottom: 0;
+}
+
+.military-toast > *::before {
+  bottom: -1px;
+  left: -1px;
+  border-right: 0;
+  border-top: 0;
+}
+
+.military-toast > *::after {
+  bottom: -1px;
+  right: -1px;
+  border-left: 0;
+  border-top: 0;
+}
+
+/* Holographic scanline effect */
+.military-toast::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(255, 215, 0, 0.03) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: toastScan 10s linear infinite;
+}
+
+/* Success variant */
+.military-toast[data-type="success"] {
+  border-color: rgba(255, 215, 0, 0.8) !important;
+  box-shadow: 
+    0 0 20px rgba(255, 215, 0, 0.3),
+    inset 0 0 15px rgba(255, 215, 0, 0.1) !important;
+}
+
+/* Error variant */
+.military-toast[data-type="error"] {
+  border-color: rgba(255, 62, 62, 0.8) !important;
+  box-shadow: 
+    0 0 20px rgba(255, 62, 62, 0.3),
+    inset 0 0 15px rgba(255, 62, 62, 0.1) !important;
+}
+
+/* Warning variant */
+.military-toast[data-type="warning"] {
+  border-color: rgba(255, 255, 0, 0.8) !important;
+  box-shadow: 
+    0 0 20px rgba(255, 255, 0, 0.3),
+    inset 0 0 15px rgba(255, 255, 0, 0.1) !important;
+}
+
+@keyframes toastScan {
+  from { background-position: 0 0; }
+  to { background-position: 0 100%; }
+}
+
+/* Update the slide-in animation */
+@keyframes toastSlideIn {
+  from {
+    transform: translate(-50%, -100%);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+.military-toast {
+  animation: toastSlideIn 0.3s ease forwards;
+}
