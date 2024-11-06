@@ -1,56 +1,94 @@
 <script lang="ts">
-  import { EtherealBackground } from "$lib/components/ui/effects";
+  import EtherealBackground from '../effects/EtherealBackground.svelte';
+  import AnimatedText from '../effects/AnimatedText.svelte';
+  import TerminalText from '../effects/TerminalText.svelte';
+  import { bootState } from '$lib/stores/bootSequence';
   
   export let title: string;
   export let subtitle: string;
+  export let mode: 'login' | 'register';
 </script>
 
-<div class="fixed inset-0 bg-black">
+<div class="min-h-screen flex items-center justify-center p-4 bg-black relative">
   <EtherealBackground />
   
-  <div class="absolute inset-0 z-10 flex flex-col items-center justify-center p-4">
-    <div class="w-full max-w-md space-y-6">
-      <!-- Military-style header -->
-      <div class="border-b-2 border-red-600/50 pb-4 text-center">
-        <div class="flex items-center justify-center gap-2 mb-2">
-          <div class="w-2 h-2 bg-red-500 animate-pulse rounded-full"></div>
-          <h2 class="text-sm font-mono tracking-widest text-red-500">SUPER EARTH MILITARY COMMAND</h2>
-        </div>
-        <h1 class="text-3xl font-bold text-white uppercase tracking-wider mb-2">{title}</h1>
-        <p class="text-gray-400 font-mono text-sm">{subtitle}</p>
+  <main class="w-full max-w-md space-y-8 relative z-10">
+    <div class="scanline-container">
+      <AnimatedText {title} {subtitle} />
+    </div>
+    
+    {#if !$bootState.terminalComplete}
+      <div class="tech-frame mb-6">
+        <TerminalText />
       </div>
-
-      <!-- Content -->
-      <div class="space-y-6 p-8 rounded-lg bg-black/40 backdrop-blur-sm border border-red-500/20 
-                  military-panel glow-border">
+    {/if}
+    
+    {#if $bootState.formVisible}
+      <div class="tech-frame scanline-container" class:fade-in={$bootState.formVisible}>
         <slot />
       </div>
-    </div>
-  </div>
+    {/if}
+  </main>
 </div>
 
 <style>
-  .military-panel {
+  .tech-frame {
     position: relative;
-    overflow: hidden;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.1);
+    color: #FFD700;
+    text-shadow: 0 0 5px rgba(255, 215, 0, 0.3);
   }
 
-  .military-panel::before {
+  .tech-frame::before {
     content: '';
     position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      rgba(220, 38, 38, 0.03) 0px,
-      rgba(220, 38, 38, 0.03) 1px,
-      transparent 1px,
-      transparent 2px
-    );
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid rgba(255, 215, 0, 0.1);
     pointer-events: none;
   }
 
-  .glow-border {
-    box-shadow: 0 0 15px rgba(220, 38, 38, 0.1),
-                inset 0 0 15px rgba(220, 38, 38, 0.1);
+  /* Standardized scanline effect */
+  :global(.scanline-effect::after) {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      rgba(0, 0, 0, 0.5) 50%
+    );
+    background-size: 100% 2px;
+    pointer-events: none;
+    animation: globalScan 8s linear infinite;
   }
-</style> 
+
+  @keyframes globalScan {
+    from { background-position: 0 0; }
+    to { background-position: 0 100%; }
+  }
+
+  .fade-in {
+    animation: fadeIn 0.5s ease forwards;
+    opacity: 0;
+  }
+
+  @keyframes fadeIn {
+    from { 
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+</style>

@@ -33,3 +33,11 @@ We are a community of Helldivers committed to:
 ## For Liberty!
 
 Remember: The only good bug/bot is a dead bug/bot. See you on the battlefield, Helldivers!
+
+## Contributors
+
+- ATiredMan - Project Lead
+- Claude (AI Assistant) - Programming Support
+  - Helped with UI/UX design
+  - Implemented military-tech aesthetic
+  - Developed animation systems
