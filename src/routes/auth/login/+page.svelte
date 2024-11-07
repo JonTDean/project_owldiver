@@ -3,14 +3,9 @@
   import LoginForm from '$lib/components/auth/LoginForm.svelte';
   import { onMount } from 'svelte';
   import { formAnimation } from '$lib/stores/formAnimation';
-  import { bootState } from '$lib/stores/bootSequence';
 
   onMount(() => {
     formAnimation.reset();
-    bootState.set({
-      terminalComplete: false,
-      formVisible: false
-    });
   });
 </script>
 

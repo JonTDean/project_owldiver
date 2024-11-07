@@ -7,6 +7,7 @@
   import { registrationSuccess } from '$lib/stores/auth';
   import militaryToast from '$lib/components/ui/toast/military-toast';
   import MilitaryHeader from '$lib/components/ui/header/MilitaryHeader.svelte';
+  import { clearHistory } from '$lib/stores/bootSequence';
 
   let loading = false;
   let formData = {
@@ -37,6 +38,7 @@
       }
     };
   };
+
 </script>
 
 <div class="space-y-6">
@@ -104,6 +106,10 @@
       <a 
         href="/auth/login" 
         class="text-sm text-[#FFD700]/60 hover:text-[#FFD700] transition-colors uppercase tracking-wider"
+        on:click|preventDefault={() => {
+          clearHistory();
+          goto('/auth/login');
+        }}
       >
         [ ALREADY A HELLDIVER? LOGIN HERE ]
       </a>

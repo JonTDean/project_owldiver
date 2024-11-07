@@ -6,6 +6,7 @@
   import MilitaryInput from '$lib/components/ui/input/MilitaryInput.svelte';
   import militaryToast from '$lib/components/ui/toast/military-toast';
   import MilitaryHeader from '$lib/components/ui/header/MilitaryHeader.svelte';
+  import { clearHistory } from '$lib/stores/bootSequence';
 
   let loading = false;
 
@@ -26,7 +27,7 @@
   };
 </script>
 
-<div class="space-y-6">
+<div class="relative w-full h-full">
   <MilitaryHeader
     title="SUPER EARTH TERMINAL"
     subtitle="AUTHENTICATION REQUIRED"
@@ -80,6 +81,10 @@
         <a 
           href="/auth/register" 
           class="text-sm text-[#FFD700] hover:text-[#FFD700]/80 transition-colors"
+          on:click|preventDefault={() => {
+            clearHistory();
+            goto('/auth/register');
+          }}
         >
           <span class="text-[#FFD700]/50">[</span>
           ENLIST NOW
@@ -112,5 +117,9 @@
   :global(.tech-button:disabled) {
     opacity: 0.5 !important;
     cursor: not-allowed !important;
+  }
+
+  :global(.cyber-terminal) {
+    background: transparent;
   }
 </style> 
