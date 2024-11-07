@@ -12,5 +12,5 @@ export const POST: RequestHandler = async ({ cookies, locals }) => {
   cookies.delete('session_token', { path: '/' });
   cookies.delete('refresh_token', { path: '/' });
   
-  throw redirect(303, '/auth/login');
+  throw redirect(303, '/');
 }; 

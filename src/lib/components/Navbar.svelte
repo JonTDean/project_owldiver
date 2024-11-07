@@ -22,7 +22,8 @@
 </script>
 
 <!-- Navigation -->
-<nav class="border-b border-themed backdrop-blur-sm bg-background/80 sticky top-0 z-50">
+<nav class="border-b border-[#FFD700]/20 backdrop-blur-sm bg-black/80 sticky top-0 z-50 
+           shadow-[0_0_20px_rgba(255,215,0,0.1)]">
   <div class="container max-w-7xl mx-auto px-4">
     <div class="flex items-center justify-between h-16">
       <!-- Left: Hamburger Menu (only show if authenticated) -->
@@ -32,11 +33,12 @@
           
           {#if menuOpen}
             <div 
-              class="absolute top-full left-0 w-64 mt-2 bg-background border border-themed"
+              class="absolute top-full left-0 w-64 mt-2 bg-black/90 border border-[#FFD700]/20
+                     shadow-[0_0_15px_rgba(255,215,0,0.1)]"
               transition:slide={{ duration: 200 }}
             >
-              <div class="p-2 border-b border-themed">
-                <p class="text-[10px] font-mono tracking-[0.2em] text-primary">
+              <div class="p-2 border-b border-[#FFD700]/20">
+                <p class="text-[10px] font-mono tracking-[0.2em] text-[#FFD700]/70">
                   WELCOME, {user.username}
                 </p>
               </div>
@@ -45,8 +47,8 @@
                   <a
                     {href}
                     class="flex items-center gap-3 px-4 py-2 font-mono text-xs tracking-[0.1em] 
-                           hover:bg-accent/20 transition-colors
-                           {$page.url.pathname === href ? 'text-primary bg-accent/10' : 'text-muted'}"
+                           hover:bg-[#FFD700]/5 transition-colors
+                           {$page.url.pathname === href ? 'text-[#FFD700] bg-[#FFD700]/10' : 'text-[#FFD700]/50'}"
                     on:click={() => menuOpen = false}
                   >
                     <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
@@ -60,7 +62,8 @@
       {:else}
         <!-- Show public nav items when not authenticated -->
         <div class="flex items-center gap-4">
-          <a href="/about" class="font-mono text-xs tracking-[0.1em] text-muted hover:text-primary">
+          <a href="/about" class="font-mono text-xs tracking-[0.1em] text-[#FFD700]/50 hover:text-[#FFD700] 
+                                transition-colors">
             ABOUT
           </a>
         </div>
@@ -68,8 +71,11 @@
 
       <!-- Center: Logo -->
       <div class="flex items-center gap-2">
-        <div class="w-2 h-2 bg-primary animate-pulse rounded-full"></div>
-        <a href={user ? '/dashboard' : '/'} class="font-mono text-primary text-sm tracking-[0.2em] font-bold">
+        <div class="w-2 h-2 bg-[#FFD700] animate-pulse rounded-full 
+                    shadow-[0_0_10px_rgba(255,215,0,0.5)]"></div>
+        <a href={user ? '/dashboard' : '/'} 
+           class="font-mono text-[#FFD700] text-sm tracking-[0.2em] font-bold
+                  drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]">
           OWLDIVER
         </a>
       </div>
@@ -79,8 +85,8 @@
         {#if user}
           <a 
             href="/auth/account-settings"
-            class="font-mono text-xs tracking-[0.1em] text-muted hover:text-primary transition-colors
-                   flex items-center gap-2"
+            class="font-mono text-xs tracking-[0.1em] text-[#FFD700]/50 hover:text-[#FFD700] 
+                   transition-colors flex items-center gap-2"
           >
             <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
             SETTINGS
@@ -88,8 +94,8 @@
           <form action="/auth/logout" method="POST">
             <button 
               type="submit"
-              class="font-mono text-xs tracking-[0.1em] text-primary hover:text-red-400 transition-colors
-                     flex items-center gap-2"
+              class="font-mono text-xs tracking-[0.1em] text-[#FFD700] hover:text-[#FF4444] 
+                     transition-colors flex items-center gap-2"
             >
               <div class="w-1.5 h-1.5 rounded-full bg-current"></div>
               LOGOUT
@@ -98,13 +104,15 @@
         {:else}
           <a 
             href="/auth/login"
-            class="font-mono text-xs tracking-[0.1em] text-muted hover:text-primary"
+            class="font-mono text-xs tracking-[0.1em] text-[#FFD700]/50 hover:text-[#FFD700] 
+                   transition-colors"
           >
             LOGIN
           </a>
           <a 
             href="/auth/register"
-            class="font-mono text-xs tracking-[0.1em] text-primary"
+            class="font-mono text-xs tracking-[0.1em] text-[#FFD700] 
+                   drop-shadow-[0_0_10px_rgba(255,215,0,0.3)]"
           >
             REGISTER
           </a>

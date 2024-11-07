@@ -2,18 +2,30 @@
   export let open = false;
 </script>
 
-<button 
-  class="relative w-8 h-8 flex flex-col justify-center items-center group"
-  class:open
+<button
+  class="relative w-8 h-8 flex items-center justify-center group"
   on:click
 >
-  <div class="flex flex-col gap-[6px] items-start">
-    <span class="w-6 h-[2px] bg-primary transform transition-all duration-300 
-                 group-hover:bg-red-400 {open ? 'rotate-45 translate-y-2' : ''}" />
-    <span class="w-4 h-[2px] bg-primary transform transition-all duration-300 
-                 group-hover:bg-red-400 group-hover:w-6 {open ? 'opacity-0' : ''}" />
-    <span class="w-5 h-[2px] bg-primary transform transition-all duration-300 
-                 group-hover:bg-red-400 group-hover:w-6 {open ? '-rotate-45 -translate-y-2' : ''}" />
+  <div
+    class="flex flex-col justify-center items-center w-6 h-6 space-y-1.5 
+           transition-transform duration-300 {open ? 'transform rotate-180' : ''}"
+  >
+    <!-- Lines that form the hamburger or X -->
+    <div
+      class="w-full h-0.5 bg-[#FFD700]/50 transform transition-all duration-300 
+             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(255,215,0,0.5)]
+             {open ? 'rotate-45 translate-y-2' : ''}"
+    ></div>
+    <div
+      class="w-full h-0.5 bg-[#FFD700]/50 transition-all duration-300 
+             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(255,215,0,0.5)]
+             {open ? 'opacity-0' : ''}"
+    ></div>
+    <div
+      class="w-full h-0.5 bg-[#FFD700]/50 transform transition-all duration-300 
+             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(255,215,0,0.5)]
+             {open ? '-rotate-45 -translate-y-2' : ''}"
+    ></div>
   </div>
 </button>
 
