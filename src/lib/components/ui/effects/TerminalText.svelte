@@ -175,11 +175,6 @@
     {
       cmd: '>> GENERATING ZERO-KNOWLEDGE AUTHENTICATION PROOF',
       output: generateZkSnarkProofOutput().map(section => section.map(line => 
-        // Color coding different types of messages
-        line.includes('[INFO]') ? `\x1b[36m${line}\x1b[0m` : // Cyan for info
-        line.includes('[OK]') ? `\x1b[32m${line}\x1b[0m` : // Green for success
-        line.includes('[STEP') ? `\x1b[33m${line}\x1b[0m` : // Yellow for steps
-        line.includes('[SECURITY') ? `\x1b[31m${line}\x1b[0m` : // Red for security
         line
       )).flat()
     },
@@ -271,14 +266,14 @@
     bootState.set({ terminalComplete: false, formVisible: false });
     visible = true;
     
-    await sleep(300); // Quick initial delay
+    await sleep(150); // Quick initial delay
     
     for (const sequence of bootSequence) {
       if (!visible) break;
       
       // Command appears quickly
       messages = [...messages, sequence.cmd];
-      await sleep(200);
+      await sleep(50);
       smoothScrollToBottom();
       
       if (sequence.output.length > 0) {
@@ -294,11 +289,11 @@
           messages = [...messages, line];
           
           const delay = 
-            line.includes('[ERROR]') ? 300 :
-            line.includes('[AUTH]') ? 200 :
-            line.includes('[OK]') ? 150 :
-            line.includes('[STEP') ? 100 :
-            50;
+            line.includes('[ERROR]') ? 75 :
+            line.includes('[AUTH]') ? 50 :
+            line.includes('[OK]') ? 50 :
+            line.includes('[STEP') ? 25 :
+            25;
           
           await sleep(delay);
           smoothScrollToBottom();
@@ -309,12 +304,12 @@
       progress = (currentIndex / bootSequence.length) * 100;
       
       // Pause briefly between major sections
-      await sleep(150);
+      await sleep(50);
     }
 
-    await sleep(500);
+    await sleep(125);
     onComplete();
-    await sleep(300);
+    await sleep(75);
     visible = false;
     isProcessing = false;
   }
@@ -529,11 +524,11 @@
   }
 
   .info-text {
-    color: #87CEEB;
+    color: #00FFFF;
   }
 
   .security-text {
-    color: #FF6B6B;
+    color: #FF4444;
     font-weight: bold;
   }
 

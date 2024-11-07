@@ -9,6 +9,8 @@
 	import type { LayoutData } from './$types';
 	import { Toaster } from 'svelte-french-toast';
 	import toast from 'svelte-french-toast';
+	import LoadingScreen from '$lib/components/ui/loading/LoadingScreen.svelte';
+	import { isLoading } from '$lib/stores/loading'; // Import the loading store
 
 	export let data: LayoutData;
 
@@ -74,23 +76,28 @@
 	}
 </script>
 
-{#if $navigating}
-	<div class="loading">Loading...</div>
-{/if}
+<div style={themeStyles}>
 
-<div 
-	class="min-h-screen bg-background text-foreground font-sans"
-	style={themeStyles}
->
-	{#if $page.url.pathname !== '/auth/login' && $page.url.pathname !== '/auth/register'}
-		<Navbar user={data.user} />
+
+	<!-- Navbar -->
+	<Navbar user={data.user} />
+
+	<!-- Loading Screen -->
+	{#if $page.url.pathname === '/'}
+		<!-- Navigation Loading Indicator -->
+		{#if $navigating}
+			<div class="loading"></div>
+		{/if}
+		<LoadingScreen loading={$isLoading} />
 	{/if}
 
 	<!-- Main Content -->
-	<main class="min-h-[calc(100vh-4rem)]">
-		<Toaster />
+	<main>
 		<slot />
 	</main>
+
+	<!-- Toast Notifications -->
+	<Toaster />
 </div>
 
 <style>
@@ -101,6 +108,7 @@
 	:global(body) {
 		background-color: var(--color-background);
 		color: var(--color-foreground);
+		margin: 0; /* Reset default margin to prevent unexpected spacing */
 	}
 
 	:global(.font-mono) {
@@ -143,6 +151,7 @@
 		height: 3px;
 		background: linear-gradient(to right, #4f46e5, #818cf8);
 		animation: loading 1s infinite;
+		z-index: 999; /* Ensure it sits below the loading screen */
 	}
 
 	@keyframes loading {

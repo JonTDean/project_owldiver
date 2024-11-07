@@ -6,7 +6,6 @@
   import { goto } from '$app/navigation';
 
   async function handleJoinClick() {
-    toast.success('Welcome to the Owl Enforcers!');
     await goto('/auth/register');
   }
 </script>

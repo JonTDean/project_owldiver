@@ -4,6 +4,7 @@
     import * as THREE from 'three'
     import { onMount } from 'svelte'
     import { writable, derived } from 'svelte/store'
+    import { isLoading } from '$lib/stores/loading'
 
     // Load textures
     const textureLoader = new THREE.TextureLoader()
@@ -32,11 +33,11 @@
 
     // Stars configuration
     const starsConfig = {
-        radius: 100,
+        radius: 120,
         depth: 50,
-        count: 5000,
-        factor: 4,
-        saturation: 0,
+        count: 4000,
+        factor: 2,
+        saturation: 3,
         fade: true,
         speed: 1
     }
@@ -45,7 +46,7 @@
     const rotation = writable({ earth: 0, sun: 0 })
     const EARTH_ROTATION_SPEED = 0.0005
     const SUN_ORBIT_SPEED = 0.0002
-    const SUN_DISTANCE = 100
+    const SUN_DISTANCE = 500
 
     onMount(() => {
         const animate = () => {
@@ -56,6 +57,8 @@
             requestAnimationFrame(animate)
         }
         animate()
+
+        isLoading.set(false) // Set loading to false once the scene is ready
     })
 
     $: sunPosition = {
@@ -126,26 +129,29 @@
             sunPosition.z
         )
     }
+
+    // Reduce shadow map size for performance
+    const shadowMapSize = 128
 </script>
 
 <!-- High quality stars -->
 <Stars {...starsConfig} />
 
 <T.PerspectiveCamera 
-    position={[0, 40, 80]} 
+    position={[0, 100, 300]}
     fov={45}
     near={0.1}
-    far={1000}
+    far={1500}
     makeDefault
 >
     <OrbitControls 
         enableDamping
         dampingFactor={0.05}
-        minDistance={50}
-        maxDistance={200}
+        minDistance={200}
+        maxDistance={500}
         enableRotate={false}
         enablePan={false}
-        enableZoom={false}
+        enableZoom={true}
         target.y={-15}
     />
 </T.PerspectiveCamera>
@@ -162,14 +168,14 @@
         intensity={2}
         color="#fffceb"
         castShadow
-        shadow.mapSize.width={2048}
-        shadow.mapSize.height={2048}
+        shadow.mapSize.width={shadowMapSize}
+        shadow.mapSize.height={shadowMapSize}
         shadow.camera.near={1}
-        shadow.camera.far={500}
-        shadow.camera.left={-100}
-        shadow.camera.right={100}
-        shadow.camera.top={100}
-        shadow.camera.bottom={-100}
+        shadow.camera.far={1000}
+        shadow.camera.left={-200}
+        shadow.camera.right={200}
+        shadow.camera.top={200}
+        shadow.camera.bottom={-200}
         shadow.bias={-0.001}
     />
 </T.Group>
@@ -183,7 +189,7 @@
         receiveShadow
         scale={15}
     >
-        <T.SphereGeometry args={[1, 64, 32]} />
+        <T.SphereGeometry args={[1, 32, 16]} />
     </T.Mesh>
 
     <!-- Cloud layer with improved shadow settings -->
@@ -192,7 +198,7 @@
         castShadow
         receiveShadow
     >
-        <T.SphereGeometry args={[1, 64, 32]} />
+        <T.SphereGeometry args={[1, 32, 16]} />
         <T.MeshPhysicalMaterial
             map={cloudsTexture}
             transparent={true}
