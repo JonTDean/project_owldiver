@@ -95,6 +95,20 @@
       />
     </div>
 
+
+
+    <Button 
+      type="submit"
+      disabled={loading || !isValid}
+      class="tech-button w-full"
+    >
+      <div class="relative flex items-center justify-center">
+        <span class="absolute left-0 text-[#FFD700]/50">[</span>
+        {loading ? 'PROCESSING...' : 'CONFIRM ENLISTMENT'}
+        <span class="absolute right-0 text-[#FFD700]/50">]</span>
+      </div>
+    </Button>
+
     <div class="space-y-4">
       <div class="relative">
         <div class="absolute inset-0 flex items-center">
@@ -117,19 +131,7 @@
         </div>
       </Button>
     </div>
-
-    <Button 
-      type="submit"
-      disabled={loading || !isValid}
-      class="tech-button w-full"
-    >
-      <div class="relative flex items-center justify-center">
-        <span class="absolute left-0 text-[#FFD700]/50">[</span>
-        {loading ? 'PROCESSING...' : 'CONFIRM ENLISTMENT'}
-        <span class="absolute right-0 text-[#FFD700]/50">]</span>
-      </div>
-    </Button>
-
+    
     <div class="text-center mt-6">
       <a 
         href="/auth/login" 
