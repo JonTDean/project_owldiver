@@ -39,6 +39,11 @@
     };
   };
 
+  const handleSteamLogin = () => {
+    console.log('Steam registration button clicked');
+    window.location.href = '/auth/steam/login';
+  };
+
 </script>
 
 <div class="space-y-6">
@@ -88,6 +93,29 @@
         required
         bind:value={formData.confirmPassword}
       />
+    </div>
+
+    <div class="space-y-4">
+      <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+          <span class="w-full border-t border-[#FFD700]/30" />
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+          <span class="bg-black px-2 text-[#FFD700]/50">Or continue with</span>
+        </div>
+      </div>
+
+      <Button 
+        type="button"
+        class="tech-button w-full relative"
+        on:click={handleSteamLogin}
+      >
+        <div class="flex items-center justify-center gap-2">
+          <span class="absolute left-2 text-[#FFD700]/50 select-none">[</span>
+          <span class="text-center">REGISTER WITH STEAM</span>
+          <span class="absolute right-2 text-[#FFD700]/50 select-none">]</span>
+        </div>
+      </Button>
     </div>
 
     <Button 

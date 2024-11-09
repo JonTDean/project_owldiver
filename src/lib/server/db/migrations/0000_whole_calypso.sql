@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS "app"."builds" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "app"."combat_stats" (
 	"profile_id" uuid PRIMARY KEY NOT NULL,
-	"career_stats" jsonb DEFAULT '{"enemy_kills":0,"terminid_kills":0,"automaton_kills":0,"friendly_kills":0,"grenade_kills":0,"melee_kills":0,"eagle_kills":0,"deaths":0,"shots_fired":0,"shots_hit":0,"orbitals_used":0,"defensive_stratagems_used":0,"eagle_stratagems_used":0,"supply_stratagems_used":0,"reinforce_stratagems_used":0,"total_stratagems_used":0,"successful_extractions":0,"objectives_completed":0,"missions_played":0,"missions_won":0,"in_mission_time":"00:00:00","samples_collected":0,"total_xp_earned":0}'::jsonb,
+	"career_stats" jsonb,
 	"created_at" timestamp with time zone DEFAULT now(),
 	"updated_at" timestamp with time zone DEFAULT now()
 );
@@ -80,13 +80,20 @@ CREATE TABLE IF NOT EXISTS "app"."profiles" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "auth"."oauth_accounts" (
-	"provider_id" text NOT NULL,
-	"provider_user_id" text NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"user_id" uuid NOT NULL,
-	"access_token" text NOT NULL,
+	"provider" varchar(255) NOT NULL,
+	"provider_user_id" varchar(255) NOT NULL,
+	"provider_username" varchar(255),
+	"provider_avatar" text,
+	"access_token" text,
 	"refresh_token" text,
+	"token_type" varchar(255),
+	"scope" text,
+	"id_token" text,
 	"expires_at" timestamp with time zone,
-	CONSTRAINT "oauth_accounts_provider_id_provider_user_id_pk" PRIMARY KEY("provider_id","provider_user_id")
+	"created_at" timestamp with time zone DEFAULT now(),
+	"updated_at" timestamp with time zone DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "auth"."refresh_tokens" (
@@ -102,28 +109,17 @@ CREATE TABLE IF NOT EXISTS "auth"."sessions" (
 	"expires_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE IF NOT EXISTS "auth"."steam_accounts" (
-	"user_id" uuid PRIMARY KEY NOT NULL,
-	"steam_id" varchar(255),
-	"steam_username" varchar(255),
-	"access_token" text,
-	"refresh_token" text,
-	"last_online" timestamp with time zone,
-	"created_at" timestamp with time zone DEFAULT now(),
-	"updated_at" timestamp with time zone DEFAULT now(),
-	CONSTRAINT "steam_accounts_steam_id_unique" UNIQUE("steam_id")
-);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "auth"."users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"username" varchar(255) NOT NULL,
-	"email" varchar(255) NOT NULL,
-	"password_hash" varchar(255) NOT NULL,
+	"email" varchar(255),
+	"password_hash" varchar(255),
+	"avatar" text,
 	"role" varchar(50) DEFAULT 'user' NOT NULL,
+	"steam_id" varchar(255),
 	"created_at" timestamp with time zone DEFAULT now(),
 	"updated_at" timestamp with time zone DEFAULT now(),
-	"email_verified" boolean DEFAULT false,
-	CONSTRAINT "users_email_unique" UNIQUE("email")
+	"email_verified" boolean DEFAULT false
 );
 --> statement-breakpoint
 DO $$ BEGIN
@@ -204,10 +200,5 @@ EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "auth"."steam_accounts" ADD CONSTRAINT "steam_accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "provider_user_unique_idx" ON "auth"."oauth_accounts" USING btree ("provider","provider_user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX IF NOT EXISTS "users_email_unique" ON "auth"."users" USING btree ("email");

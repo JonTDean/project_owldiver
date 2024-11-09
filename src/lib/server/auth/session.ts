@@ -117,7 +117,7 @@ export async function validateSessionToken(token: string): Promise<{ user: AuthU
       return null;
     }
 
-    return { user };
+    return { user: user as AuthUser };
   } catch (error) {
     console.error('Session validation error:', error);
     return null;

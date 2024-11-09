@@ -25,6 +25,11 @@
       }
     };
   };
+
+  const handleSteamLogin = () => {
+    console.log('Steam login button clicked');
+    window.location.href = '/auth/steam/login';
+  };
 </script>
 
 <div class="relative w-full h-full">
@@ -34,13 +39,13 @@
     securityLevel="LEVEL 5"
   />
 
-  <form 
-    class="space-y-6 font-mono relative" 
-    method="POST" 
-    action="?/login"
-    use:enhance={handleSubmit}
-  >
-    <div class="space-y-4">
+  <div class="space-y-6 font-mono relative">
+    <form 
+      class="space-y-4"
+      method="POST" 
+      action="?/login"
+      use:enhance={handleSubmit}
+    >
       <MilitaryInput
         id="identifier"
         name="identifier"
@@ -57,12 +62,10 @@
         placeholder="ENTER SECURITY KEY"
         required
       />
-    </div>
 
-    <div class="space-y-4">
       <Button 
         type="submit"
-        class="tech-button w-full relative"
+        class="tech-button w-full relative mt-4"
         disabled={loading}
       >
         <div class="flex items-center justify-center px-8">
@@ -70,6 +73,29 @@
           <span class="text-center">
             {loading ? 'PROCESSING...' : 'AUTHENTICATE'}
           </span>
+          <span class="absolute right-2 text-[#FFD700]/50 select-none">]</span>
+        </div>
+      </Button>
+    </form>
+
+    <div class="space-y-4">
+      <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+          <span class="w-full border-t border-[#FFD700]/30" />
+        </div>
+        <div class="relative flex justify-center text-xs uppercase">
+          <span class="bg-black px-2 text-[#FFD700]/50">Or continue with</span>
+        </div>
+      </div>
+
+      <Button 
+        type="button"
+        class="tech-button w-full relative"
+        on:click={handleSteamLogin}
+      >
+        <div class="flex items-center justify-center gap-2">
+          <span class="absolute left-2 text-[#FFD700]/50 select-none">[</span>
+          <span class="text-center">LOGIN WITH STEAM</span>
           <span class="absolute right-2 text-[#FFD700]/50 select-none">]</span>
         </div>
       </Button>
@@ -92,7 +118,7 @@
         </a>
       </div>
     </div>
-  </form>
+  </div>
 </div>
 
 <style>

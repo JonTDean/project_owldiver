@@ -1,4 +1,4 @@
-import { pgSchema, uuid, varchar, text, boolean, timestamp, uniqueIndex, primaryKey } from 'drizzle-orm/pg-core';
+import { pgSchema, uuid, varchar, text, boolean, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 // Create the schema
@@ -8,9 +8,11 @@ const authSchema = pgSchema('auth');
 export const users = authSchema.table('users', {
   id: uuid('id').primaryKey().defaultRandom(),
   username: varchar('username', { length: 255 }).notNull(),
-  email: varchar('email', { length: 255 }).notNull().unique(),
-  password_hash: varchar('password_hash', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }),
+  password_hash: varchar('password_hash', { length: 255 }),
+  avatar: text('avatar'),
   role: varchar('role', { length: 50 }).default('user').notNull(),
+  steam_id: varchar('steam_id', { length: 255 }),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow(),
   email_verified: boolean('email_verified').default(false),
@@ -39,36 +41,51 @@ export const refresh_tokens = authSchema.table('refresh_tokens', {
   revoked_at: timestamp('revoked_at', { withTimezone: true }),
 });
 
-// OAuth accounts table
+// Enhanced OAuth accounts table
 export const oauth_accounts = authSchema.table('oauth_accounts', {
-  provider_id: text('provider_id').notNull(),
-  provider_user_id: text('provider_user_id').notNull(),
+  id: uuid('id').primaryKey().defaultRandom(),
   user_id: uuid('user_id')
     .notNull()
     .references(() => users.id, { onDelete: 'cascade' }),
-  access_token: text('access_token').notNull(),
-  refresh_token: text('refresh_token'),
-  expires_at: timestamp('expires_at', { withTimezone: true }),
-}, (table) => ({
-  pk: primaryKey({ columns: [table.provider_id, table.provider_user_id] })
-}));
-
-// Steam accounts table
-export const steam_accounts = authSchema.table('steam_accounts', {
-  user_id: uuid('user_id')
-    .primaryKey()
-    .references(() => users.id, { onDelete: 'cascade' }),
-  steam_id: varchar('steam_id', { length: 255 }).unique(),
-  steam_username: varchar('steam_username', { length: 255 }),
+  provider: varchar('provider', { length: 255 }).notNull(),
+  provider_user_id: varchar('provider_user_id', { length: 255 }).notNull(),
+  provider_username: varchar('provider_username', { length: 255 }),
+  provider_avatar: text('provider_avatar'),
   access_token: text('access_token'),
   refresh_token: text('refresh_token'),
-  last_online: timestamp('last_online', { withTimezone: true }),
+  token_type: varchar('token_type', { length: 255 }),
+  scope: text('scope'),
+  id_token: text('id_token'),
+  expires_at: timestamp('expires_at', { withTimezone: true }),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
   updated_at: timestamp('updated_at', { withTimezone: true }).defaultNow(),
-});
+}, (table) => ({
+  provider_user_unique: uniqueIndex('provider_user_unique_idx').on(
+    table.provider,
+    table.provider_user_id
+  ),
+}));
+
+// Add OAuth provider enum type for type safety
+export const OAuthProvider = {
+  STEAM: 'steam',
+  DISCORD: 'discord'
+} as const;
+
+export type OAuthProvider = typeof OAuthProvider[keyof typeof OAuthProvider];
+
+// Add Zod schemas for the enhanced tables
+export const insertOAuthAccountSchema = createInsertSchema(oauth_accounts);
+export const selectOAuthAccountSchema = createSelectSchema(oauth_accounts);
 
 // Zod schemas for type safety
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export const insertSessionSchema = createInsertSchema(sessions);
 export const selectSessionSchema = createSelectSchema(sessions);
+
+// Add some helper types
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type OAuthAccount = typeof oauth_accounts.$inferSelect;
+export type NewOAuthAccount = typeof oauth_accounts.$inferInsert;

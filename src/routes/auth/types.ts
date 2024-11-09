@@ -1,6 +1,7 @@
 export interface ActionResult {
-  type: 'success' | 'failure';
+  type: 'success' | 'failure' | 'redirect';
   data?: {
-    message: string;
+    message?: string;
+    url?: string;
   };
 } 

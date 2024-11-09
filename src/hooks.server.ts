@@ -1,9 +1,15 @@
 import type { Handle } from '@sveltejs/kit';
 import { validateSessionToken, refreshSession } from '$lib/server/auth/session';
-import { redirect } from '@sveltejs/kit';
 
-// Define protected and auth-only routes
+// Define all route types
 const AUTH_ROUTES = ['/auth/login', '/auth/register'];
+const OAUTH_ROUTES = [
+  '/auth/steam/login',
+  '/auth/steam/callback',
+  '/auth/discord/login',
+  '/auth/discord/callback'
+];
+const PUBLIC_ROUTES = ['/about', '/', '/debug'];
 const LANDING_PAGE = '/';
 
 export const handle: Handle = async ({ event, resolve }) => {
@@ -85,5 +91,18 @@ function handleInvalidSession(event: any) {
 
 // Helper function to check if a route is public
 function isPublicRoute(path: string): boolean {
-  return path === LANDING_PAGE || AUTH_ROUTES.includes(path);
+  // Check if the path matches any OAuth route exactly
+  if (OAUTH_ROUTES.includes(path)) {
+    return true;
+  }
+  
+  // Check if the path starts with any OAuth route prefix
+  if (OAUTH_ROUTES.some(route => path.startsWith(route))) {
+    return true;
+  }
+
+  // Check other public routes
+  return path === LANDING_PAGE || 
+         AUTH_ROUTES.includes(path) || 
+         PUBLIC_ROUTES.includes(path);
 }

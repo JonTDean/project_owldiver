@@ -1,5 +1,5 @@
 {
-  "id": "e1aded96-e496-4e54-9e94-740f29842fbe",
+  "id": "0c8450f9-4894-4d22-b8a4-1b09deefb078",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -179,8 +179,7 @@
           "name": "career_stats",
           "type": "jsonb",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'{\"enemy_kills\":0,\"terminid_kills\":0,\"automaton_kills\":0,\"friendly_kills\":0,\"grenade_kills\":0,\"melee_kills\":0,\"eagle_kills\":0,\"deaths\":0,\"shots_fired\":0,\"shots_hit\":0,\"orbitals_used\":0,\"defensive_stratagems_used\":0,\"eagle_stratagems_used\":0,\"supply_stratagems_used\":0,\"reinforce_stratagems_used\":0,\"total_stratagems_used\":0,\"successful_extractions\":0,\"objectives_completed\":0,\"missions_played\":0,\"missions_won\":0,\"in_mission_time\":\"00:00:00\",\"samples_collected\":0,\"total_xp_earned\":0}'::jsonb"
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -616,17 +615,12 @@
       "name": "oauth_accounts",
       "schema": "auth",
       "columns": {
-        "provider_id": {
-          "name": "provider_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "provider_user_id": {
-          "name": "provider_user_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
@@ -634,14 +628,56 @@
           "primaryKey": false,
           "notNull": true
         },
+        "provider": {
+          "name": "provider",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_user_id": {
+          "name": "provider_user_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "provider_username": {
+          "name": "provider_username",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider_avatar": {
+          "name": "provider_avatar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "access_token": {
           "name": "access_token",
           "type": "text",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "refresh_token": {
           "name": "refresh_token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "token_type": {
+          "name": "token_type",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "scope": {
+          "name": "scope",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_token": {
+          "name": "id_token",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -651,9 +687,45 @@
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "provider_user_unique_idx": {
+          "name": "provider_user_unique_idx",
+          "columns": [
+            {
+              "expression": "provider",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "provider_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "oauth_accounts_user_id_users_id_fk": {
           "name": "oauth_accounts_user_id_users_id_fk",
@@ -670,15 +742,7 @@
           "onUpdate": "no action"
         }
       },
-      "compositePrimaryKeys": {
-        "oauth_accounts_provider_id_provider_user_id_pk": {
-          "name": "oauth_accounts_provider_id_provider_user_id_pk",
-          "columns": [
-            "provider_id",
-            "provider_user_id"
-          ]
-        }
-      },
+      "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
     "auth.refresh_tokens": {
@@ -774,89 +838,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "auth.steam_accounts": {
-      "name": "steam_accounts",
-      "schema": "auth",
-      "columns": {
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "steam_id": {
-          "name": "steam_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "steam_username": {
-          "name": "steam_username",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "access_token": {
-          "name": "access_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "refresh_token": {
-          "name": "refresh_token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "last_online": {
-          "name": "last_online",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "steam_accounts_user_id_users_id_fk": {
-          "name": "steam_accounts_user_id_users_id_fk",
-          "tableFrom": "steam_accounts",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "steam_accounts_steam_id_unique": {
-          "name": "steam_accounts_steam_id_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "steam_id"
-          ]
-        }
-      }
-    },
     "auth.users": {
       "name": "users",
       "schema": "auth",
@@ -878,13 +859,19 @@
           "name": "email",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
         },
         "password_hash": {
           "name": "password_hash",
           "type": "varchar(255)",
           "primaryKey": false,
-          "notNull": true
+          "notNull": false
+        },
+        "avatar": {
+          "name": "avatar",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "role": {
           "name": "role",
@@ -892,6 +879,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'user'"
+        },
+        "steam_id": {
+          "name": "steam_id",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -934,15 +927,7 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
-        }
-      }
+      "uniqueConstraints": {}
     }
   },
   "enums": {},
