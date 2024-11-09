@@ -13,17 +13,17 @@
     <!-- Lines that form the hamburger or X -->
     <div
       class="w-full h-0.5 bg-[#FFD700]/50 transform transition-all duration-300 
-             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(255,215,0,0.5)]
+             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(209, 178, 13,0.5)]
              {open ? 'rotate-45 translate-y-2' : ''}"
     ></div>
     <div
       class="w-full h-0.5 bg-[#FFD700]/50 transition-all duration-300 
-             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(255,215,0,0.5)]
+             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(209, 178, 13,0.5)]
              {open ? 'opacity-0' : ''}"
     ></div>
     <div
       class="w-full h-0.5 bg-[#FFD700]/50 transform transition-all duration-300 
-             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(255,215,0,0.5)]
+             group-hover:bg-[#FFD700] group-hover:shadow-[0_0_5px_rgba(209, 178, 13,0.5)]
              {open ? '-rotate-45 -translate-y-2' : ''}"
     ></div>
   </div>

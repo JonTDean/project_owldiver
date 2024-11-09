@@ -1,82 +1,170 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import toast from 'svelte-french-toast';
   import { registrationSuccess } from '$lib/stores/auth';
+  import MilitaryHeader from '$lib/components/ui/header/MilitaryHeader.svelte';
 
   onMount(() => {
     if ($registrationSuccess) {
-      toast.success('ENLISTMENT SUCCESSFUL - WELCOME TO THE HELLDIVERS', {
-        className: 'toast-military',
-        icon: '⭐',
-        duration: 4000,
-      });
       registrationSuccess.set(false);
     }
   });
 </script>
 
-<div class="fixed inset-0" style="background-color: #0a0a0a;">
+<div class="fixed inset-0 bg-[#0a0a0a] overflow-auto">
   <div class="container mx-auto p-4">
-    <div class="space-y-6 p-8 rounded-lg bg-black/40 backdrop-blur-sm border border-red-500/20">
-      <!-- Military-style header -->
-      <div class="border-b-2 border-red-600 pb-4">
-        <h2 class="text-sm font-mono tracking-widest text-red-500 mb-2">SUPER EARTH MILITARY COMMAND</h2>
-        <h1 class="text-3xl font-bold mb-2 uppercase tracking-wider text-white">OWLDIVER Command Center</h1>
-        <p class="text-gray-400 font-mono">CLEARANCE LEVEL: TOP SECRET</p>
+    <!-- Top Secret Classification Banner -->
+    <div class="border border-[#FFD700]/30 bg-black/60 p-2 mb-6 relative">
+      <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-[#FFD700]/30"></div>
+      <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-[#FFD700]/30"></div>
+      <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-[#FFD700]/30"></div>
+      <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-[#FFD700]/30"></div>
+      <div class="text-center font-mono">
+        <div class="text-red-500 text-xs tracking-[0.5em] animate-pulse">TOP SECRET</div>
+        <div class="text-[#FFD700]/50 text-[10px] tracking-[0.2em]">CLEARANCE LEVEL ALPHA</div>
+      </div>
+    </div>
+
+    <MilitaryHeader 
+      title="OWLDIVER COMMAND CENTER" 
+      subtitle="SUPER EARTH MILITARY INTELLIGENCE DIVISION" 
+      securityLevel="LEVEL 5 - TOP SECRET"
+    />
+
+    <div class="space-y-6">
+      <!-- Mission Stats Panel -->
+      <div class="military-panel">
+        <div class="panel-header">
+          <div class="header-accent"></div>
+          <h2 class="text-sm font-mono tracking-[0.3em] text-[#FFD700]">OPERATIONAL STATUS REPORT</h2>
+          <div class="header-accent"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4">
+          <div class="stat-box">
+            <div class="stat-header">ACTIVE OPERATIONS</div>
+            <div class="stat-value">12</div>
+            <div class="stat-footer">PRIORITY LEVEL: ALPHA</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-header">SUCCESSFUL MISSIONS</div>
+            <div class="stat-value">487</div>
+            <div class="stat-footer">CASUALTY RATIO: 0.23</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-header">TOTAL CASUALTIES</div>
+            <div class="stat-value">1,337</div>
+            <div class="stat-footer">FOR SUPER EARTH</div>
+          </div>
+        </div>
       </div>
 
-      <!-- Mission Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 font-mono">
-        <div class="p-4 rounded-lg bg-black/40 border border-red-500/20">
-          <h3 class="text-red-500 text-sm uppercase tracking-wider">Active Operations</h3>
-          <p class="text-2xl text-white mt-2">12</p>
+      <!-- Recent Operations Panel -->
+      <div class="military-panel">
+        <div class="panel-header">
+          <div class="header-accent"></div>
+          <h2 class="text-sm font-mono tracking-[0.3em] text-[#FFD700]">RECENT TACTICAL OPERATIONS</h2>
+          <div class="header-accent"></div>
         </div>
-        <div class="p-4 rounded-lg bg-black/40 border border-red-500/20">
-          <h3 class="text-red-500 text-sm uppercase tracking-wider">Successful Missions</h3>
-          <p class="text-2xl text-white mt-2">487</p>
-        </div>
-        <div class="p-4 rounded-lg bg-black/40 border border-red-500/20">
-          <h3 class="text-red-500 text-sm uppercase tracking-wider">Casualties</h3>
-          <p class="text-2xl text-white mt-2">1,337</p>
-        </div>
-      </div>
 
-      <!-- Recent Activity -->
-      <div class="space-y-4">
-        <h2 class="text-xl font-mono text-red-500 uppercase tracking-wider">Recent Operations</h2>
-        <div class="space-y-2">
+        <div class="p-4 space-y-3">
           {#each Array(3) as _, i}
-            <div class="p-4 rounded-lg bg-black/40 border border-red-500/20">
+            <div class="operation-box">
               <div class="flex justify-between items-start">
                 <div>
-                  <h3 class="text-white font-mono">Operation Deadfall</h3>
-                  <p class="text-sm text-gray-400 font-mono">Sector: X-274 • Status: In Progress</p>
+                  <div class="text-[#FFD700] font-mono text-sm tracking-wider">OPERATION DEADFALL</div>
+                  <div class="text-xs text-[#FFD700]/50 font-mono mt-1">
+                    <span class="mr-2">SECTOR: X-274</span>
+                    <span class="mr-2">•</span>
+                    <span>STATUS: IN PROGRESS</span>
+                  </div>
                 </div>
-                <span class="text-red-500 font-mono text-sm">2 HOURS AGO</span>
+                <div class="text-[#FFD700]/70 font-mono text-xs">T-MINUS 2:00:00</div>
               </div>
             </div>
           {/each}
         </div>
       </div>
 
-      <!-- Mission Briefing -->
-      <div class="p-4 rounded-lg bg-black/60 border border-red-500/20">
-        <h2 class="text-red-500 font-mono uppercase tracking-wider mb-2">Current Objectives</h2>
-        <ul class="space-y-2 text-gray-300 font-mono">
-          <li class="flex items-center gap-2">
-            <span class="text-red-500">•</span>
-            Eliminate Terminid presence in Sector X-274
-          </li>
-          <li class="flex items-center gap-2">
-            <span class="text-red-500">•</span>
-            Deploy automated defense systems
-          </li>
-          <li class="flex items-center gap-2">
-            <span class="text-red-500">•</span>
-            Extract strategic resources
-          </li>
-        </ul>
+      <!-- Mission Objectives Panel -->
+      <div class="military-panel">
+        <div class="panel-header">
+          <div class="header-accent"></div>
+          <h2 class="text-sm font-mono tracking-[0.3em] text-[#FFD700]">PRIORITY OBJECTIVES</h2>
+          <div class="header-accent"></div>
+        </div>
+
+        <div class="p-4">
+          <ul class="space-y-3">
+            {#each ['ELIMINATE TERMINID PRESENCE IN SECTOR X-274', 'DEPLOY AUTOMATED DEFENSE SYSTEMS', 'EXTRACT STRATEGIC RESOURCES'] as objective}
+              <li class="objective-item">
+                <div class="w-1.5 h-1.5 bg-[#FFD700] animate-pulse"></div>
+                <span class="font-mono text-sm tracking-wider text-[#FFD700]/80">{objective}</span>
+              </li>
+            {/each}
+          </ul>
+        </div>
       </div>
     </div>
   </div>
-</div> 
+</div>
+
+<style>
+  .military-panel {
+    @apply border border-[#FFD700]/30 bg-black/60 relative overflow-hidden;
+  }
+
+  .panel-header {
+    @apply flex items-center justify-between p-3 bg-black/40 border-b border-[#FFD700]/30;
+  }
+
+  .header-accent {
+    @apply h-px w-12 bg-gradient-to-r from-transparent via-[#FFD700]/30 to-transparent;
+  }
+
+  .stat-box {
+    @apply p-4 border border-[#FFD700]/20 bg-black/40 relative;
+  }
+
+  .stat-header {
+    @apply text-xs font-mono tracking-[0.2em] text-[#FFD700]/70 mb-2;
+  }
+
+  .stat-value {
+    @apply text-2xl font-mono text-[#FFD700] mb-2;
+  }
+
+  .stat-footer {
+    @apply text-[10px] font-mono tracking-[0.1em] text-[#FFD700]/50;
+  }
+
+  .operation-box {
+    @apply p-3 border border-[#FFD700]/20 bg-black/40 relative;
+  }
+
+  .objective-item {
+    @apply flex items-center gap-3 p-2 border border-[#FFD700]/20 bg-black/40;
+  }
+
+  /* Scanline effect */
+  .military-panel::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent 50%,
+      rgba(255, 215, 0, 0.02) 50%
+    );
+    background-size: 100% 4px;
+    pointer-events: none;
+    animation: scan 10s linear infinite;
+  }
+
+  @keyframes scan {
+    from { background-position: 0 0; }
+    to { background-position: 0 100%; }
+  }
+</style> 

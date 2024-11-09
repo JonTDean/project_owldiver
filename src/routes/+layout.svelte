@@ -74,13 +74,16 @@
 			toast.error(message, toastOptions);
 		}
 	}
+
+	// The user should be available from the page data
+	$: user = $page.data.user;
 </script>
 
 <div style={themeStyles}>
 
 
 	<!-- Navbar -->
-	<Navbar user={data.user} />
+	<Navbar {user} />
 
 	<!-- Loading Screen -->
 	{#if $page.url.pathname === '/'}
