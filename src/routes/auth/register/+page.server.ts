@@ -43,27 +43,34 @@ export const actions: Actions = {
         // Hash password
         const hashedPassword = await bcrypt.hash(data.password, 10);
         
-        // Create user
+        // Create user - note we're not setting avatar field
         const [newUser] = await tx.insert(users)
           .values({
             username: data.username,
             email: email,
             password_hash: hashedPassword,
             role: 'user'
+            // avatar field will be null by default
           })
-          .returning();
+          .returning({
+            id: users.id,
+            username: users.username,
+            email: users.email,
+            role: users.role
+          });
 
         if (!newUser?.id) {
           throw new Error('Failed to create user');
         }
 
-        // Create profile
+        // Create profile with no avatar
         const [profile] = await tx.insert(profiles)
           .values({
             user_id: newUser.id,
             rank: 'RECRUIT',
             security_clearance: 1,
-            status: 'ACTIVE'
+            status: 'ACTIVE',
+            avatar: null, // Default avatar or null
           })
           .returning();
 

@@ -1,83 +1,11 @@
 {
-  "id": "0c8450f9-4894-4d22-b8a4-1b09deefb078",
+  "id": "9482b442-7e55-483c-bad9-635a42f75416",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "app.build_votes": {
-      "name": "build_votes",
-      "schema": "app",
-      "columns": {
-        "build_id": {
-          "name": "build_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "vote_type": {
-          "name": "vote_type",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "build_votes_build_id_builds_id_fk": {
-          "name": "build_votes_build_id_builds_id_fk",
-          "tableFrom": "build_votes",
-          "tableTo": "builds",
-          "schemaTo": "app",
-          "columnsFrom": [
-            "build_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "build_votes_user_id_users_id_fk": {
-          "name": "build_votes_user_id_users_id_fk",
-          "tableFrom": "build_votes",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "build_votes_build_id_user_id_pk": {
-          "name": "build_votes_build_id_user_id_pk",
-          "columns": [
-            "build_id",
-            "user_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {}
-    },
-    "app.builds": {
-      "name": "builds",
+    "app.combat_stats": {
+      "name": "combat_stats",
       "schema": "app",
       "columns": {
         "id": {
@@ -87,99 +15,17 @@
           "notNull": true,
           "default": "gen_random_uuid()"
         },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "primary_weapon": {
-          "name": "primary_weapon",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "secondary_weapon": {
-          "name": "secondary_weapon",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "stratagems": {
-          "name": "stratagems",
-          "type": "text[]",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "upvotes": {
-          "name": "upvotes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "builds_created_by_users_id_fk": {
-          "name": "builds_created_by_users_id_fk",
-          "tableFrom": "builds",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "app.combat_stats": {
-      "name": "combat_stats",
-      "schema": "app",
-      "columns": {
         "profile_id": {
           "name": "profile_id",
           "type": "uuid",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true
         },
         "career_stats": {
           "name": "career_stats",
           "type": "jsonb",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -216,290 +62,6 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "app.mission_participants": {
-      "name": "mission_participants",
-      "schema": "app",
-      "columns": {
-        "mission_id": {
-          "name": "mission_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "role": {
-          "name": "role",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'member'"
-        },
-        "joined_at": {
-          "name": "joined_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "mission_participants_mission_id_missions_id_fk": {
-          "name": "mission_participants_mission_id_missions_id_fk",
-          "tableFrom": "mission_participants",
-          "tableTo": "missions",
-          "schemaTo": "app",
-          "columnsFrom": [
-            "mission_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "mission_participants_user_id_users_id_fk": {
-          "name": "mission_participants_user_id_users_id_fk",
-          "tableFrom": "mission_participants",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "mission_participants_profile_id_profiles_id_fk": {
-          "name": "mission_participants_profile_id_profiles_id_fk",
-          "tableFrom": "mission_participants",
-          "tableTo": "profiles",
-          "schemaTo": "app",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {
-        "mission_participants_mission_id_user_id_pk": {
-          "name": "mission_participants_mission_id_user_id_pk",
-          "columns": [
-            "mission_id",
-            "user_id"
-          ]
-        }
-      },
-      "uniqueConstraints": {}
-    },
-    "app.missions": {
-      "name": "missions",
-      "schema": "app",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "title": {
-          "name": "title",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_by": {
-          "name": "created_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "status": {
-          "name": "status",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'active'"
-        },
-        "difficulty": {
-          "name": "difficulty",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "max_participants": {
-          "name": "max_participants",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "current_participants": {
-          "name": "current_participants",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "default": 0
-        },
-        "start_time": {
-          "name": "start_time",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "end_time": {
-          "name": "end_time",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "missions_created_by_users_id_fk": {
-          "name": "missions_created_by_users_id_fk",
-          "tableFrom": "missions",
-          "tableTo": "users",
-          "schemaTo": "auth",
-          "columnsFrom": [
-            "created_by"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
-    },
-    "app.profile_rp": {
-      "name": "profile_rp",
-      "schema": "app",
-      "columns": {
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "codename": {
-          "name": "codename",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "nationality": {
-          "name": "nationality",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "specialization": {
-          "name": "specialization",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "motivation": {
-          "name": "motivation",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "service_history": {
-          "name": "service_history",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "psych_profile": {
-          "name": "psych_profile",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "updated_at": {
-          "name": "updated_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "profile_rp_profile_id_profiles_id_fk": {
-          "name": "profile_rp_profile_id_profiles_id_fk",
-          "tableFrom": "profile_rp",
-          "tableTo": "profiles",
-          "schemaTo": "app",
-          "columnsFrom": [
-            "profile_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "profile_rp_codename_unique": {
-          "name": "profile_rp_codename_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "codename"
-          ]
-        }
-      }
-    },
     "app.profiles": {
       "name": "profiles",
       "schema": "app",
@@ -521,63 +83,28 @@
           "name": "rank",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'RECRUIT'"
+          "notNull": true
         },
         "security_clearance": {
           "name": "security_clearance",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
-          "default": 1
+          "notNull": true
         },
         "status": {
           "name": "status",
           "type": "varchar(50)",
           "primaryKey": false,
-          "notNull": false,
-          "default": "'ACTIVE'"
+          "notNull": true
         },
-        "thumbnail": {
-          "name": "thumbnail",
-          "type": "varchar(50)",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "'🎖️'"
-        },
-        "steam_id": {
-          "name": "steam_id",
-          "type": "varchar(255)",
+        "avatar": {
+          "name": "avatar",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
-        "steam_username": {
-          "name": "steam_username",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "psn_id": {
-          "name": "psn_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "discord_id": {
-          "name": "discord_id",
-          "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "join_date": {
-          "name": "join_date",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false,
-          "default": "now()"
-        },
-        "last_active": {
-          "name": "last_active",
+        "created_at": {
+          "name": "created_at",
           "type": "timestamp with time zone",
           "primaryKey": false,
           "notNull": false,
@@ -864,12 +391,6 @@
         "password_hash": {
           "name": "password_hash",
           "type": "varchar(255)",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "avatar": {
-          "name": "avatar",
-          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

@@ -37,6 +37,13 @@ export const actions = {
       const db = getDb(true);
 
       const user = await db.query.users.findFirst({
+        columns: {
+          id: true,
+          username: true,
+          email: true,
+          password_hash: true,
+          role: true
+        },
         where: (users, { or, eq }) => or(
           eq(users.email, identifier.toLowerCase().trim()),
           eq(users.username, identifier.toLowerCase().trim())

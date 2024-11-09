@@ -4,11 +4,6 @@ import postgres from 'postgres';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { config } from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 // Load environment variables
 config();

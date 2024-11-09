@@ -1,5 +1,5 @@
 import { getDb } from '$lib/server/db';
-import { users, oauth_accounts, type OAuthProvider } from '$lib/server/db/schema';
+import { users, oauth_accounts, type OAuthProvider, profiles } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import type { NewUser } from '$lib/server/db/schema';
 
@@ -17,7 +17,6 @@ interface OAuthUserData {
 export async function linkOAuthAccount(userData: OAuthUserData) {
   const db = getDb();
 
-  // Start a transaction
   return await db.transaction(async (tx) => {
     // Check if OAuth account already exists
     const existingOAuth = await tx.query.oauth_accounts.findFirst({
@@ -50,7 +49,6 @@ export async function linkOAuthAccount(userData: OAuthUserData) {
     // Prepare new user data
     const newUserData: NewUser = {
       username: userData.username,
-      avatar: userData.avatar || null,
       role: 'user',
       // Add Steam-specific data if it's a Steam login
       ...(userData.provider === 'steam' && {
@@ -59,14 +57,24 @@ export async function linkOAuthAccount(userData: OAuthUserData) {
     };
 
     // Create new user
-    const [user] = await tx.insert(users)
+    const [newUser] = await tx.insert(users)
       .values(newUserData)
       .returning();
+
+    // Create profile with avatar
+    await tx.insert(profiles)
+      .values({
+        user_id: newUser.id,
+        rank: 'RECRUIT',
+        security_clearance: 1,
+        status: 'ACTIVE',
+        avatar: userData.avatar || null
+      });
 
     // Create OAuth account
     await tx.insert(oauth_accounts)
       .values({
-        user_id: user.id,
+        user_id: newUser.id,
         provider: userData.provider,
         provider_user_id: userData.providerId,
         provider_username: userData.username,
@@ -76,6 +84,6 @@ export async function linkOAuthAccount(userData: OAuthUserData) {
         expires_at: userData.expiresAt || null
       });
 
-    return user;
+    return newUser;
   });
 } 

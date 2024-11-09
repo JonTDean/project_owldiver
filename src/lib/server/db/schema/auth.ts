@@ -10,7 +10,6 @@ export const users = authSchema.table('users', {
   username: varchar('username', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }),
   password_hash: varchar('password_hash', { length: 255 }),
-  avatar: text('avatar'),
   role: varchar('role', { length: 50 }).default('user').notNull(),
   steam_id: varchar('steam_id', { length: 255 }),
   created_at: timestamp('created_at', { withTimezone: true }).defaultNow(),
@@ -41,7 +40,7 @@ export const refresh_tokens = authSchema.table('refresh_tokens', {
   revoked_at: timestamp('revoked_at', { withTimezone: true }),
 });
 
-// Enhanced OAuth accounts table
+// OAuth accounts table
 export const oauth_accounts = authSchema.table('oauth_accounts', {
   id: uuid('id').primaryKey().defaultRandom(),
   user_id: uuid('user_id')
@@ -74,18 +73,16 @@ export const OAuthProvider = {
 
 export type OAuthProvider = typeof OAuthProvider[keyof typeof OAuthProvider];
 
-// Add Zod schemas for the enhanced tables
-export const insertOAuthAccountSchema = createInsertSchema(oauth_accounts);
-export const selectOAuthAccountSchema = createSelectSchema(oauth_accounts);
-
-// Zod schemas for type safety
+// Add Zod schemas for type safety
 export const insertUserSchema = createInsertSchema(users);
 export const selectUserSchema = createSelectSchema(users);
 export const insertSessionSchema = createInsertSchema(sessions);
 export const selectSessionSchema = createSelectSchema(sessions);
+export const insertOAuthAccountSchema = createInsertSchema(oauth_accounts);
+export const selectOAuthAccountSchema = createSelectSchema(oauth_accounts);
 
-// Add some helper types
+// Add helper types
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type OAuthAccount = typeof oauth_accounts.$inferSelect;
-export type NewOAuthAccount = typeof oauth_accounts.$inferInsert;
+export type NewOAuthAccount = typeof oauth_accounts.$inferInsert; 
